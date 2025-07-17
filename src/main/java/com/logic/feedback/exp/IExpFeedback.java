@@ -1,23 +1,11 @@
 package com.logic.feedback.exp;
 
-import com.logic.feedback.nd.NDFeedback;
-import com.logic.nd.asts.IASTND;
+import com.logic.feedback.IFeedback;
 
-import java.util.List;
-
-public interface IExpFeedback {
-
-    void setFeedback(String feedback);
+public interface IExpFeedback extends IFeedback {
 
     String getExp();
 
-    boolean hasFeedback();
-
-    String getFeedback();
-
     boolean isFOL();
 
-    List<NDFeedback> getPreviews();
-
-    void addPreview(IASTND preview);
 }

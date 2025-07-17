@@ -410,4 +410,35 @@ public class NDFOLTest {
         });
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "P(a) → ∃x Q(x). ∃x (P(a) → Q(x))"
+    })
+    void testAlgorithmWithNoExtra4(String premisesAndExpression) throws Exception {
+        String[] parts = premisesAndExpression.split("\\.");
+        String expression = parts[parts.length - 1].trim();
+
+        Set<IFOLFormula> premises = new HashSet<>();
+        for (int i = 0; i < parts.length - 1; i++) {
+            premises.add(LogicAPI.parseFOL(parts[i].trim()));
+        }
+
+        Assertions.assertDoesNotThrow(() -> {
+            INDProof proof = new AlgoProofFOLBuilder(
+                    new AlgoProofFOLMainGoalBuilder(LogicAPI.parseFOL(expression))
+                            .addPremises(premises)
+                            .addTerm(new ASTVariable("y"))
+            ).setGoal(new AlgoProofFOLGoalBuilder(LogicAPI.parseFOL("∃x (P(a) → Q(x))"))
+                            .addHypothesis(LogicAPI.parseFOL("¬∃x (P(a) → Q(x))"))
+                            .addHypothesis(LogicAPI.parseFOL("P(a)"))
+                            .addHypothesis(LogicAPI.parseFOL("¬Q(a)"))
+                    ).build();
+
+            System.out.println("Size: " + proof.size() + " Height: " + proof.height());
+            System.out.println(proof);
+        });
+    }
+
+
 }

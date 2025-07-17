@@ -14,6 +14,7 @@ import com.logic.nd.asts.binary.ASTIConj;
 import com.logic.nd.asts.others.ASTEDis;
 import com.logic.nd.asts.others.ASTHypothesis;
 import com.logic.nd.asts.unary.*;
+import com.logic.others.Utils;
 
 import java.util.*;
 
@@ -34,7 +35,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
     }
 
     public static NDFeedback parse(IASTND proof, boolean isFOL, FeedbackLevel level) {
-        return (NDFeedback) proof.accept(new NDFeedbackVisitor(isFOL, level, new HashMap<>()), null);
+        return proof.accept(new NDFeedbackVisitor(isFOL, level, new HashMap<>()), null);
     }
 
     public ExpFeedback convertToFeedback(AASTND ast) {
@@ -45,7 +46,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
     @Override
     public NDFeedback visit(ASTHypothesis r, Void unused) {
         NDFeedback fb = new NDFeedback(convertToFeedback(r), Collections.singletonList(r.getM()),
-                null, ERule.HYPOTHESIS, isFOL);
+                null, ERule.HYPOTHESIS, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -56,7 +57,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(r.getM()),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_IMPLICATION, isFOL);
+                ERule.INTRO_IMPLICATION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -67,7 +68,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(r.getM()),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_NEGATION, isFOL);
+                ERule.INTRO_NEGATION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -78,7 +79,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.ELIM_CONJUNCTION_RIGHT, isFOL);
+                ERule.ELIM_CONJUNCTION_RIGHT, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -89,7 +90,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.ELIM_CONJUNCTION_LEFT, isFOL);
+                ERule.ELIM_CONJUNCTION_LEFT, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -100,7 +101,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_DISJUNCTION_RIGHT, isFOL);
+                ERule.INTRO_DISJUNCTION_RIGHT, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -111,7 +112,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_DISJUNCTION_LEFT, isFOL);
+                ERule.INTRO_DISJUNCTION_LEFT, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -122,7 +123,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(r.getM()),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.ABSURDITY, isFOL);
+                ERule.ABSURDITY, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -134,7 +135,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 Arrays.asList(),
                 Arrays.asList(r.getHyp1().accept(this, unused),
                         r.getHyp2().accept(this, unused)),
-                ERule.INTRO_CONJUNCTION, isFOL);
+                ERule.INTRO_CONJUNCTION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -147,7 +148,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 Arrays.asList(r.getHyp1().accept(this, unused),
                         r.getHyp2().accept(this, unused),
                         r.getHyp3().accept(this, unused)),
-                ERule.ELIM_DISJUNCTION, isFOL);
+                ERule.ELIM_DISJUNCTION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -159,7 +160,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 Arrays.asList(),
                 Arrays.asList(r.getHyp1().accept(this, unused),
                         r.getHyp2().accept(this, unused)),
-                ERule.ELIM_IMPLICATION, isFOL);
+                ERule.ELIM_IMPLICATION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -171,7 +172,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 Arrays.asList(),
                 Arrays.asList(r.getHyp1().accept(this, unused),
                         r.getHyp2().accept(this, unused)),
-                ERule.ELIM_NEGATION, isFOL);
+                ERule.ELIM_NEGATION, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -182,7 +183,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.ELIM_UNIVERSAL, isFOL);
+                ERule.ELIM_UNIVERSAL, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -193,7 +194,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_EXISTENTIAL, isFOL);
+                ERule.INTRO_EXISTENTIAL, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -204,7 +205,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 convertToFeedback(r),
                 Arrays.asList(),
                 Arrays.asList(r.getHyp().accept(this, unused)),
-                ERule.INTRO_UNIVERSAL, isFOL);
+                ERule.INTRO_UNIVERSAL, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }
@@ -216,7 +217,7 @@ public class NDFeedbackVisitor implements INDVisitor<NDFeedback, Void> {
                 Arrays.asList(r.getM()),
                 Arrays.asList(r.getHyp1().accept(this, unused),
                         r.getHyp2().accept(this, unused)),
-                ERule.ELIM_EXISTENTIAL, isFOL);
+                ERule.ELIM_EXISTENTIAL, r, isFOL);
         mapper.put(r, fb);
         return fb;
     }

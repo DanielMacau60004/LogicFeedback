@@ -5,6 +5,9 @@ import com.logic.api.INDProof;
 import com.logic.api.LogicAPI;
 import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.nd.feedback.*;
+import com.logic.feedback.nd.hints.ConclusionHint;
+import com.logic.feedback.nd.hints.FreeVariableHint;
+import com.logic.feedback.nd.hints.MarkAssignHint;
 import com.logic.nd.NDProofs;
 import com.logic.nd.asts.IASTND;
 import com.logic.nd.exceptions.*;
@@ -75,15 +78,16 @@ public class NDFeedbacks {
 
             INDProof ndProof = null;
             boolean error = false;
+            boolean hasProblem = premises != null && conclusion != null;
 
             try {
                 ndProof = isFOL ? NDProofs.verifyNDFOLProof(proof) : NDProofs.verifyNDPLProof(proof);
-                if (premises != null && conclusion != null) {
+                if (hasProblem) {
                     ndProof = LogicAPI.checkNDProblem(ndProof, premises, conclusion);
                 }
             } catch (Exception e) {
                 error = true;
-                handleException(e, mapper, level);
+                handleException(e, mapper, level, hasProblem);
             }
 
             return new NDProofFeedback(ndProof, feedback, level, error);
@@ -92,19 +96,23 @@ public class NDFeedbacks {
         }
     }
 
-    private static void handleException(Exception e, Map<IASTND, NDFeedback> mapper, FeedbackLevel level) {
+    private static void handleException(Exception e, Map<IASTND, NDFeedback> mapper, FeedbackLevel level,
+                                        boolean hasProblem) {
         if (e instanceof CloseMarkException cm) {
             CloseMarkFeedback.produceFeedback(cm, mapper.get(cm.getRule()), level);
         } else if (e instanceof MarkAssignException ma) {
             MarkAssignFeedback.produceFeedback(ma, mapper.get(ma.getRule()), level);
+            if(hasProblem) MarkAssignHint.produceHint(ma, mapper.get(ma.getRule()), level);
         } else if (e instanceof FreeVariableException fv) {
             FreeVariableFeedback.produceFeedback(fv, mapper, level);
+            if(hasProblem) FreeVariableHint.produceHint(fv, mapper, level);
         } else if (e instanceof InvalidMappingException im) {
             InvalidMappingFeedback.produceFeedback(im, mapper.get(im.getRule()), level);
         } else if (e instanceof NotFreeVariableException nf) {
             NotFreeVariableFeedback.produceFeedback(nf, mapper.get(nf.getRule()), level);
         } else if (e instanceof ConclusionException c) {
             ConclusionFeedback.produceFeedback(c, mapper, level);
+            if(hasProblem) ConclusionHint.produceHint(c, mapper, level);
         } else if (e instanceof NDRuleException nr) {
             RuleFeedback.produceFeedback(nr, mapper.get(nr.getRule()), level);
         } else {

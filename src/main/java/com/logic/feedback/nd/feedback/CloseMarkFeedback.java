@@ -1,5 +1,6 @@
 package com.logic.feedback.nd.feedback;
 
+import com.logic.feedback.others.Utils;
 import com.logic.nd.asts.others.ASTHypothesis;
 import com.logic.nd.exceptions.CloseMarkException;
 import com.logic.feedback.FeedbackLevel;
@@ -18,20 +19,20 @@ public class CloseMarkFeedback {
             case MEDIUM -> "This rule cannot close mark " + exception.getMark() + "!";
             case HIGH -> {
                 String error = "This rule cannot close mark " + exception.getMark() + "!";
-                if (exception.getAssigned() != null) error += "\nOnly marks with " + exception.getAssigned() + "!";
+                if (exception.getExpected() != null) error += "\nOnly marks with " + exception.getExpected() + "!";
                 yield error;
             }
             case SOLUTION -> {
                 String error = "This rule cannot close mark " + exception.getMark() + "!";
-                if (exception.getAssigned() != null) error += "\nOnly marks with " + exception.getAssigned() + "!";
+                if (exception.getExpected() != null) error += "\nOnly marks with " + exception.getExpected() + "!";
 
                 Set<String> possibleMarks = exception.getEnv()
-                        .getMatchingChild(exception.getAssigned()).stream()
-                        .filter(Objects::nonNull)
+                        .getMatchingChild(exception.getExpected()).stream()
+                        .filter(Utils::isInteger)
                         .collect(Collectors.toSet());
                 if (!possibleMarks.isEmpty()) {
                     error += "\nConsider:";
-                    feedback.addPreview(new ASTHypothesis(exception.getAssigned(), possibleMarks.stream().findFirst().get()));
+                    feedback.addPreview(new ASTHypothesis(exception.getExpected(), possibleMarks.stream().findFirst().get()));
                 }
 
                 yield error;

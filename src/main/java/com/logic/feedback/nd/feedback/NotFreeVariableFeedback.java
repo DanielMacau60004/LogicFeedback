@@ -36,7 +36,7 @@ public class NotFreeVariableFeedback {
 
                 ASTVariable var;
                 IASTExp formula = null;
-                AlphabetSequenceIterator it = new AlphabetSequenceIterator(9);
+                AlphabetSequenceIterator it = new AlphabetSequenceIterator('a',9);
                 while (it.hasNext()) {
                     var = new ASTVariable(it.next());
                     if (!exception.getTo().isABoundedVariable(var)) {

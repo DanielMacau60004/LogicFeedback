@@ -1,14 +1,14 @@
 package com.logic.feedback.nd;
 
+import com.logic.feedback.IFeedback;
 import com.logic.feedback.exp.IExpFeedback;
 import com.logic.nd.ERule;
 import com.logic.nd.asts.IASTND;
 
 import java.util.List;
+import java.util.Map;
 
-public interface INDFeedback {
-
-    void setFeedback(String feedback);
+public interface INDFeedback extends IFeedback {
 
     IExpFeedback getConclusion();
 
@@ -18,12 +18,10 @@ public interface INDFeedback {
 
     List<NDFeedback> getHypotheses();
 
-    List<NDFeedback> getPreviews();
-
     void addPreview(IASTND preview);
 
-    boolean hasFeedback();
-    String getFeedback();
+
+    Map<String, String> getEnv();
 
     boolean isFOL();
 

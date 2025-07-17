@@ -1,10 +1,11 @@
 package com.logic.feedback.nd.feedback;
 
 import com.logic.exps.asts.others.ASTVariable;
+import com.logic.feedback.FeedbackLevel;
+import com.logic.feedback.IFeedback;
+import com.logic.feedback.nd.NDFeedback;
 import com.logic.nd.asts.IASTND;
 import com.logic.nd.exceptions.FreeVariableException;
-import com.logic.feedback.FeedbackLevel;
-import com.logic.feedback.nd.NDFeedback;
 
 import java.util.Map;
 
@@ -18,18 +19,21 @@ public class FreeVariableFeedback {
             case NONE -> "";
             case LOW -> "Something is wrong!";
             case MEDIUM -> {
-                for (IASTND h : exception.getFreeHypotheses())
-                    mapper.get(h).getConclusion().setFeedback("Something is wrong!");
+                for (IASTND h : exception.getFreeHypotheses()) {
+                    IFeedback f = mapper.get(h).getConclusion();
+                    f.setFeedback("Something is wrong!");
+                }
                 yield "Missing side condition!";
             }
             case HIGH, SOLUTION -> {
                 ASTVariable from = exception.getFrom();
                 ASTVariable variable = exception.getVariable();
-                for (IASTND h : exception.getFreeHypotheses())
-                    mapper.get(h).getConclusion().setFeedback("Open hypothesis!" +
+                for (IASTND h : exception.getFreeHypotheses()) {
+                    IFeedback f = mapper.get(h).getConclusion();
+                    f.setFeedback("Open hypothesis!" +
                             (from != null && variable != null ? "\nVariables: " + from + " ≠ " + variable : "") +
                             (variable != null ? "\nVariable " + variable.getName() + " appears free!" : "\nFree variable!"));
-
+                }
                 yield error;
             }
         });

@@ -4,11 +4,12 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class AlphabetSequenceIterator implements Iterator<String> {
-    private char currentChar = 'a';
+    private char currentChar;
     private int currentSuffix = 0;
     private final int maxSuffix;
 
-    public AlphabetSequenceIterator(int maxSuffix) {
+    public AlphabetSequenceIterator(char currentChar, int maxSuffix) {
+        this.currentChar = currentChar;
         this.maxSuffix = maxSuffix;
     }
 

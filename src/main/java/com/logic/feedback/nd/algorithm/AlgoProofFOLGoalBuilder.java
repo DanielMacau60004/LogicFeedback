@@ -7,6 +7,7 @@ import com.logic.feedback.nd.algorithm.proofs.BitGraphHandler;
 import com.logic.feedback.nd.algorithm.proofs.GoalNode;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class AlgoProofFOLGoalBuilder {
@@ -77,5 +78,4 @@ public class AlgoProofFOLGoalBuilder {
         return new GoalNode(handler.getIndex(goal), handler.toBitSet(new HashSet<>(hypotheses)),
                 height, handler.toBitSet(new HashSet<>(notFree)), handler);
     }
-
 }

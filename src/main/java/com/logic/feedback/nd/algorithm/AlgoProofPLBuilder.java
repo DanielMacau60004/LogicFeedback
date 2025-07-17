@@ -71,4 +71,5 @@ public class AlgoProofPLBuilder {
 
         return new Solution(sg, false).findSolution();
     }
+
 }
