@@ -2,6 +2,7 @@ package com.logic.feedback.exp;
 
 import com.logic.api.IFormula;
 import com.logic.api.LogicAPI;
+import com.logic.exps.ExpUtils;
 import com.logic.exps.exceptions.*;
 import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.exp.feedback.*;

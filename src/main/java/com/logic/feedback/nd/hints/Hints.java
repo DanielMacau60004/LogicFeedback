@@ -33,7 +33,6 @@ public class Hints {
             error = "You are " + genProof.numberOfRules() + " rule(s) away from a solution!";
             if (level.ordinal() > 2)
                 error += "\nTry to apply " + genProof.getAST().getRule() + " rule!";
-
         }
 
         return error;
