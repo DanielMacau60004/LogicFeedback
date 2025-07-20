@@ -122,6 +122,7 @@ public class NDPLTest {
             INDProof proof = new AlgoProofPLBuilder(
                     new AlgoProofPLMainGoalBuilder(LogicAPI.parsePL(expression))
                             .addPremises(premises))
+                    .setAlgoSettingsBuilder(new AlgoSettingsBuilder())
                     .build();
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
             System.out.println(proof);

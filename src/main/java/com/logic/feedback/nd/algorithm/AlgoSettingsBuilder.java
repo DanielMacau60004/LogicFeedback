@@ -18,9 +18,17 @@ public class AlgoSettingsBuilder {
     private IBuildStrategy buildStrategy = new LinearBuildStrategy();
     private ITrimStrategy trimStrategy = new HeightTrimStrategy();
 
+    public int getHeightLimit() {
+        return heightLimit;
+    }
+
     public AlgoSettingsBuilder setHeightLimit(int heightLimit) {
         this.heightLimit = heightLimit;
         return this;
+    }
+
+    public int getTotalNodes() {
+        return totalNodes;
     }
 
     public AlgoSettingsBuilder setTotalClosedNodes(int totalClosedNodes) {
@@ -28,9 +36,17 @@ public class AlgoSettingsBuilder {
         return this;
     }
 
+    public int getHypothesesPerGoal() {
+        return hypothesesPerGoal;
+    }
+
     public AlgoSettingsBuilder setHypothesesPerGoal(int hypothesesPerGoal) {
         this.hypothesesPerGoal = hypothesesPerGoal;
         return this;
+    }
+
+    public long getTimeout() {
+        return timeout;
     }
 
     public AlgoSettingsBuilder setTimeout(long timeout) {
@@ -38,14 +54,26 @@ public class AlgoSettingsBuilder {
         return this;
     }
 
+    public int getTotalClosedNodes() {
+        return totalClosedNodes;
+    }
+
     public AlgoSettingsBuilder setTotalNodes(int totalNodes) {
         this.totalNodes = totalNodes;
         return this;
     }
 
+    public IBuildStrategy getBuildStrategy() {
+        return buildStrategy;
+    }
+
     public AlgoSettingsBuilder setBuildStrategy(IBuildStrategy buildStrategy) {
         this.buildStrategy = buildStrategy;
         return this;
+    }
+
+    public ITrimStrategy getTrimStrategy() {
+        return trimStrategy;
     }
 
     public AlgoSettingsBuilder setTrimStrategy(ITrimStrategy trimStrategy) {

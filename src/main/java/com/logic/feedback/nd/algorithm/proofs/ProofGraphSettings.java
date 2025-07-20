@@ -6,12 +6,12 @@ import com.logic.feedback.nd.algorithm.proofs.strategies.ITrimStrategy;
 
 public class ProofGraphSettings {
 
-    private final int heightLimit;
-    private final int totalClosedNodesLimit;
-    private final int totalNodesLimit;
-    private final int hypothesesPerGoalLimit;
+    private int heightLimit;
+    private int totalClosedNodesLimit;
+    private int totalNodesLimit;
+    private int hypothesesPerGoalLimit;
 
-    private final long timeout;
+    private long timeout;
 
     private final IBuildStrategy buildStrategy;
     private final ITrimStrategy trimStrategy;
@@ -33,20 +33,40 @@ public class ProofGraphSettings {
         return heightLimit;
     }
 
+    public void setHeightLimit(int heightLimit) {
+        this.heightLimit = heightLimit;
+    }
+
     public int getTotalNodesLimit() {
         return totalNodesLimit;
+    }
+
+    public void setTotalClosedNodesLimit(int totalClosedNodesLimit) {
+        this.totalClosedNodesLimit = totalClosedNodesLimit;
     }
 
     public int getTotalClosedNodesLimit() {
         return totalClosedNodesLimit;
     }
 
+    public void setTotalNodesLimit(int totalNodesLimit) {
+        this.totalNodesLimit = totalNodesLimit;
+    }
+
     public int getHypothesesPerGoalLimit() {
         return hypothesesPerGoalLimit;
     }
 
+    public void setHypothesesPerGoalLimit(int hypothesesPerGoalLimit) {
+        this.hypothesesPerGoalLimit = hypothesesPerGoalLimit;
+    }
+
     public long getTimeout() {
         return timeout;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public IBuildStrategy getBuildStrategy() {

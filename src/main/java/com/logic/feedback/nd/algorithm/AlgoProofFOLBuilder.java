@@ -3,13 +3,13 @@ package com.logic.feedback.nd.algorithm;
 import com.logic.api.IFormula;
 import com.logic.api.INDProof;
 import com.logic.exps.asts.others.AASTTerm;
-import com.logic.nd.ERule;
+import com.logic.feedback.nd.algorithm.proofs.IProofGraph;
 import com.logic.feedback.nd.algorithm.proofs.ProofGraphFOL;
 import com.logic.feedback.nd.algorithm.proofs.ProofGraphSettings;
 import com.logic.feedback.nd.algorithm.proofs.Solution;
-import com.logic.feedback.nd.algorithm.proofs.IProofGraph;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphFOL;
+import com.logic.nd.ERule;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,8 +47,8 @@ public class AlgoProofFOLBuilder {
         return this;
     }
 
-    public INDProof build() {
-        if(goal == null)
+    public IProofGraph buildGraph() {
+        if (goal == null)
             goal = problem;
 
         Set<AASTTerm> terms = new HashSet<>(problem.terms);
@@ -67,7 +67,11 @@ public class AlgoProofFOLBuilder {
         IProofGraph sg = new ProofGraphFOL(problem, goal, tg, s);
         sg.build();
 
-        return new Solution(sg, true).findSolution();
+        return sg;
+    }
+
+    public INDProof build() {
+        return new Solution(buildGraph(), true).findSolution();
     }
 
 }

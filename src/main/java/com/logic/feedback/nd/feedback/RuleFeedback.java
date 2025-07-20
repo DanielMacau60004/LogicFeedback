@@ -36,12 +36,10 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
     public static void produceFeedback(NDRuleException exception, NDFeedback feedback, FeedbackLevel level) {
         if (level.equals(FeedbackLevel.NONE))
             return;
-        else if (level.equals(FeedbackLevel.LOW))
-            feedback.setFeedback("Invalid rule application!");
-        else {
-            feedback.setFeedback("Error in this rule!");
+
+        feedback.setFeedback("Invalid rule application!");
+        if (level.ordinal() > FeedbackLevel.LOW.ordinal())
             exception.getRule().accept(new RuleFeedback(feedback, level), null);
-        }
     }
 
     @Override
@@ -58,7 +56,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
             IASTExp right = ExpUtils.removeParenthesis(imp.getRight());
             if (!right.equals(rule.getHyp().getConclusion())) {
                 if (level == FeedbackLevel.HIGH || level == FeedbackLevel.SOLUTION)
-                    hypError = "This must be " + right + "!";
+                    hypError = "Did you mean " + right + "?";
                 feedback.getHypotheses().get(0).getConclusion().setFeedback(hypError);
             }
 
@@ -116,7 +114,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
             IASTExp left = ExpUtils.removeParenthesis(and.getLeft());
 
             if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION))
-                conclError = "This must be " + left + "!";
+                conclError = "Did you mean " + left + "?";
 
             if (left != rule.getConclusion())
                 feedback.getConclusion().setFeedback(conclError);
@@ -148,7 +146,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
             IASTExp right = ExpUtils.removeParenthesis(and.getRight());
 
             if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION))
-                conclError = "This must be " + right + "!";
+                conclError = "Did you mean  " + right + "?";
 
             if (right != rule.getConclusion())
                 feedback.getConclusion().setFeedback(conclError);
@@ -183,7 +181,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
         } else if (!or.getLeft().equals(rule.getHyp().getConclusion())) {
 
             if (level == FeedbackLevel.HIGH || level == FeedbackLevel.SOLUTION)
-                hypError = "This must be " + new ASTOr(hyp, or.getRight()) + "!";
+                hypError = "Did you mean  " + new ASTOr(hyp, or.getRight()) + "?";
 
             feedback.getConclusion().setFeedback(hypError);
 
@@ -215,7 +213,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
         } else if (!or.getRight().equals(rule.getHyp().getConclusion())) {
 
             if (level == FeedbackLevel.HIGH || level == FeedbackLevel.SOLUTION)
-                hypError = "This must be " + new ASTOr(or.getLeft(), hyp) + "!";
+                hypError = "Did you mean  " + new ASTOr(or.getLeft(), hyp) + "?";
 
             feedback.getConclusion().setFeedback(hypError);
 
@@ -249,12 +247,6 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
 
     @Override
     public Void visit(ASTIConj rule, Void unused) {
-        IASTExp left = rule.getHyp1().getConclusion();
-        IASTExp right = rule.getHyp2().getConclusion();
-
-        if (!ExpUtils.isLiteral(left)) left = new ASTParenthesis(left);
-        if (!ExpUtils.isLiteral(right)) right = new ASTParenthesis(right);
-
         if (level == FeedbackLevel.MEDIUM) {
             if (!(rule.getConclusion() instanceof ASTAnd and) ||
                     !and.getLeft().equals(rule.getHyp1().getConclusion()) ||
@@ -266,13 +258,20 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
                 feedback.getConclusion().setFeedback("This must be a conjunction!");
             } else if (!and.getLeft().equals(rule.getHyp1().getConclusion()) ||
                     !and.getRight().equals(rule.getHyp2().getConclusion())) {
-                feedback.getConclusion().setFeedback("This must be " + new ASTAnd(left, right) + "!");
+
+                if(!and.getLeft().equals(rule.getHyp1().getConclusion()))
+                    feedback.getHypotheses().get(0).getConclusion().setFeedback("Did you mean  " +
+                            ExpUtils.removeParenthesis(and.getLeft()) + "?");
+                if(!and.getRight().equals(rule.getHyp2().getConclusion()))
+                    feedback.getHypotheses().get(1).getConclusion().setFeedback("Did you mean  " +
+                            ExpUtils.removeParenthesis(and.getRight()) + "?");
 
                 if (level == FeedbackLevel.SOLUTION) {
+                    feedback.setFeedback(feedback.getFeedback() + SOLUTION_SUFFIX);
                     feedback.addPreview(new ASTIConj(
-                            new ASTHypothesis(rule.getHyp1().getConclusion(), null),
-                            new ASTHypothesis(rule.getHyp2().getConclusion(), null),
-                            new ASTAnd(left, right)));
+                            new ASTHypothesis(ExpUtils.removeParenthesis(and.getLeft()), null),
+                            new ASTHypothesis(ExpUtils.removeParenthesis(and.getRight()), null),
+                            and));
                 }
             }
         }
@@ -287,12 +286,13 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
 
         if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION)) {
             disError = "This must be a disjunction!";
-            hypError = "This must be " + rule.getConclusion() + "!";
+            hypError = "Did you mean " + rule.getConclusion() + "?";
         }
 
         if (rule.getHyp1().getConclusion() instanceof ASTOr && level.equals(FeedbackLevel.SOLUTION)) {
             feedback.setFeedback(feedback.getFeedback() + "\nPossible solution:");
-            feedback.addPreview(new ASTEDis(new ASTHypothesis(rule.getHyp1().getConclusion(), null),
+            feedback.addPreview(new ASTEDis(
+                    new ASTHypothesis(rule.getHyp1().getConclusion(), null),
                     new ASTHypothesis(rule.getConclusion(), null),
                     new ASTHypothesis(rule.getConclusion(), null),
                     rule.getConclusion(), rule.getM(), rule.getN()));
@@ -325,8 +325,8 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
             IASTExp right = ExpUtils.removeParenthesis(imp.getRight());
 
             if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION)) {
-                hyp1Error = "This must be " + left + "!";
-                hyp2Error = "This must be " + right + "!";
+                hyp1Error = "Did you mean " + left + "?";
+                hyp2Error = "Did you mean " + right + "?";
             }
 
             if (!rule.getHyp1().getConclusion().equals(left))
@@ -360,7 +360,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
 
         if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION)) {
             conclError = "This must be a " + ExpUtils.BOT + "!";
-            hyp2Error = "This must be " + ExpUtils.negate(h1) + "!";
+            hyp2Error = "Did you mean " + ExpUtils.negate(h1) + "?";
         }
 
         if (!rule.getConclusion().equals(ExpUtils.BOT))
@@ -422,7 +422,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
 
         if (level.equals(FeedbackLevel.HIGH) || level.equals(FeedbackLevel.SOLUTION)) {
             existError = "This must be an existential!";
-            hypError = "This must be " + rule.getHyp2().getConclusion() + "!";
+            hypError = "Did you mean " + rule.getHyp2().getConclusion() + "?";
         }
 
         if (!(rule.getHyp1().getConclusion() instanceof ASTExistential))

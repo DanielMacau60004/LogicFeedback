@@ -2,14 +2,13 @@ package com.logic.feedback.nd.algorithm;
 
 import com.logic.api.IFormula;
 import com.logic.api.INDProof;
-import com.logic.nd.ERule;
 import com.logic.feedback.nd.algorithm.proofs.IProofGraph;
 import com.logic.feedback.nd.algorithm.proofs.ProofGraphPL;
 import com.logic.feedback.nd.algorithm.proofs.ProofGraphSettings;
 import com.logic.feedback.nd.algorithm.proofs.Solution;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphPL;
-import com.logic.others.Utils;
+import com.logic.nd.ERule;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -47,8 +46,7 @@ public class AlgoProofPLBuilder {
         return this;
     }
 
-
-    public INDProof build() {
+    public IProofGraph buildGraph() {
         if (goal == null)
             goal = problem;
 
@@ -67,9 +65,11 @@ public class AlgoProofPLBuilder {
         IProofGraph sg = new ProofGraphPL(problem, goal, tg, s);
         sg.build();
 
-        //System.out.println(Utils.getToken(sg.toString()));
+        return sg;
+    }
 
-        return new Solution(sg, false).findSolution();
+    public INDProof build() {
+        return new Solution(buildGraph(), false).findSolution();
     }
 
 }

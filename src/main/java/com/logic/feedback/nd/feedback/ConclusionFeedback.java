@@ -41,10 +41,10 @@ public class ConclusionFeedback {
 
     private static void produceFeedback(NDFeedback feedback, FeedbackLevel level,
                                         ASTHypothesis hypothesis, Env<String, IASTExp> env) {
-        String error = "Not a premise.\n" + (hypothesis.getM() == null ? "A mark must be assigned!" : "That mark cannot be closed by any rule!");
+        String error = "Incomplete proof.\n" + (hypothesis.getM() == null ? "Did you forget to assign a mark?" : "That mark cannot be closed by any rule!");
         feedback.getConclusion().setFeedback(switch (level) {
             case NONE -> "";
-            case LOW -> "Not a premise!";
+            case LOW -> "Incomplete proof!";
             case MEDIUM -> error;
             case HIGH -> {
                 error = getAvailable(feedback, env, error);

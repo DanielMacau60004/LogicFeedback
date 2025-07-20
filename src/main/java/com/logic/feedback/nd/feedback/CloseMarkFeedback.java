@@ -19,12 +19,12 @@ public class CloseMarkFeedback {
             case MEDIUM -> "This rule cannot close mark " + exception.getMark() + "!";
             case HIGH -> {
                 String error = "This rule cannot close mark " + exception.getMark() + "!";
-                if (exception.getExpected() != null) error += "\nOnly marks with " + exception.getExpected() + "!";
+                if (exception.getExpected() != null) error += "\nOnly marks assigned to " + exception.getExpected() + "!";
                 yield error;
             }
             case SOLUTION -> {
                 String error = "This rule cannot close mark " + exception.getMark() + "!";
-                if (exception.getExpected() != null) error += "\nOnly marks with " + exception.getExpected() + "!";
+                if (exception.getExpected() != null) error += "\nOnly marks assigned to " + exception.getExpected() + "!";
 
                 Set<String> possibleMarks = exception.getEnv()
                         .getMatchingChild(exception.getExpected()).stream()

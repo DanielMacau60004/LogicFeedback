@@ -94,6 +94,8 @@ public class LinearBuildStrategy implements IBuildStrategy {
             }
         }
 
+        settings.setTotalNodesLimit(explored);
+        settings.setTotalClosedNodesLimit(closed.size());
     }
 
     @Override
