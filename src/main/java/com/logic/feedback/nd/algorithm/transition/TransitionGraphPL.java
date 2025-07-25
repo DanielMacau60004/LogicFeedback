@@ -192,6 +192,11 @@ public class TransitionGraphPL implements ITransitionGraph {
     }
 
     @Override
+    public Map<IASTExp, Boolean> getExplored() {
+        return explored;
+    }
+
+    @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append("Formulas: ").append(Utils.getToken(formulas.values().toString())).append("\n");

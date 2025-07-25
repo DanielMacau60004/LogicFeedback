@@ -28,6 +28,11 @@ public abstract class ProofGraph implements IProofGraph {
     }
 
     @Override
+    public ITransitionGraph getTransitionGraph() {
+        return transitionGraph;
+    }
+
+    @Override
     public GoalNode getMainGoal() {
         return mainGoal;
     }

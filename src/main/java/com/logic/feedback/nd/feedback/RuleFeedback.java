@@ -232,7 +232,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
     @Override
     public Void visit(ASTAbsurdity rule, Void unused) {
         if (level.equals(FeedbackLevel.MEDIUM)) {
-            feedback.getConclusion().setFeedback(ERROR_GENERIC);
+            feedback.getHypotheses().get(0).setFeedback(ERROR_GENERIC);
         } else if (level.equals(FeedbackLevel.HIGH)) {
             feedback.getHypotheses().get(0).getConclusion().setFeedback("This must be a " + ExpUtils.BOT + "!");
         } else if (level.equals(FeedbackLevel.SOLUTION)) {

@@ -4,12 +4,16 @@ import com.logic.api.IFormula;
 import com.logic.api.INDProof;
 import com.logic.api.IPLFormula;
 import com.logic.api.LogicAPI;
+import com.logic.exps.asts.IASTExp;
 import com.logic.feedback.nd.algorithm.AlgoProofPLBuilder;
-import com.logic.feedback.nd.algorithm.AlgoProofPLMainGoalBuilder;
 import com.logic.feedback.nd.algorithm.AlgoProofPLGoalBuilder;
+import com.logic.feedback.nd.algorithm.AlgoProofPLMainGoalBuilder;
 import com.logic.feedback.nd.algorithm.AlgoSettingsBuilder;
 import com.logic.feedback.nd.algorithm.proofs.strategies.HeightTrimStrategy;
 import com.logic.feedback.nd.algorithm.proofs.strategies.SizeTrimStrategy;
+import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
+import com.logic.feedback.nd.algorithm.transition.TransitionGraphFOL;
+import com.logic.feedback.nd.algorithm.transition.TransitionGraphPL;
 import com.logic.others.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -312,7 +316,7 @@ public class NDPLTest {
                             .addHypothesis(LogicAPI.parsePL("a")))
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
-                            .setTrimStrategy(new SizeTrimStrategy())
+                                    .setTrimStrategy(new SizeTrimStrategy())
                             //.setBuildStrategy(new LinearBuildStrategy())
                     )
                     .build();
@@ -449,5 +453,21 @@ public class NDPLTest {
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
             System.out.println(proof);
         });
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "(∀x P(x) ∧ ∀x Q(x)) → ∀x (P(x) ∧ Q(x))"
+    })
+    void testExps(String premisesAndExpression) throws Exception {
+        Set<IFormula> exps = new HashSet<>();
+        exps.add(LogicAPI.parseFOL(premisesAndExpression));
+
+        ITransitionGraph tg = new TransitionGraphFOL(exps, Set.of(), Set.of());
+        tg.build();
+
+        for (IFormula f : tg.getFormulas())
+            System.out.println(Utils.getToken(f.toString()));
     }
 }

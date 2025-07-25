@@ -3,6 +3,7 @@ package com.logic.feedback.nd.algorithm.transition;
 import com.logic.api.IFormula;
 import com.logic.exps.asts.IASTExp;
 
+import java.util.Map;
 import java.util.Set;
 
 /*
@@ -34,4 +35,6 @@ public interface ITransitionGraph {
     Set<TransitionEdge> getEdges(IASTExp exp);
 
     Set<IFormula> getFormulas();
+
+    Map<IASTExp, Boolean> getExplored();
 }

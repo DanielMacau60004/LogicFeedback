@@ -34,6 +34,7 @@ public class TransitionGraphFOL extends TransitionGraphPL implements ITransition
 
         if (!forbiddenRules.contains(ERule.ELIM_EXISTENTIAL))
             graph.forEach((e, ts) -> existentials.forEach(exi -> ts.addAll(existentialERule(e, exi))));
+
     }
 
     @Override
@@ -59,7 +60,7 @@ public class TransitionGraphFOL extends TransitionGraphPL implements ITransition
             if ((term instanceof ASTVariable t && !getFormula(psiXT).isFreeVariable(t)))
                 continue;
 
-            addEdge(exi, new TransitionEdge(ERule.INTRO_EXISTENTIAL)
+            addEdge(getFormula(exi).getAST(), new TransitionEdge(ERule.INTRO_EXISTENTIAL)
                     .addTransition(getFormula(psiXT)), true);
         }
     }
@@ -74,7 +75,7 @@ public class TransitionGraphFOL extends TransitionGraphPL implements ITransition
             if ((term instanceof ASTVariable t && !getFormula(psi).isFreeVariable(t)))
                 continue;
 
-            addEdge(psiXT, new TransitionEdge(ERule.ELIM_UNIVERSAL)
+            addEdge(getFormula(psiXT).getAST(), new TransitionEdge(ERule.ELIM_UNIVERSAL)
                     .addTransition(getFormula(uni)), true);
         }
     }
@@ -92,7 +93,7 @@ public class TransitionGraphFOL extends TransitionGraphPL implements ITransition
                     !FOLReplaceExps.replace(psiXY, yVar, xVar).equals(psi))
                 continue;
 
-            addEdge(uni, new TransitionEdge(ERule.INTRO_UNIVERSAL)
+            addEdge(getFormula(uni).getAST(), new TransitionEdge(ERule.INTRO_UNIVERSAL)
                     .addTransition(getFormula(psiXY), null, yVar), true);
         }
     }
