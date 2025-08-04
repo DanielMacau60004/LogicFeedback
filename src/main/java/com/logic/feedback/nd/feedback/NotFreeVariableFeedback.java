@@ -10,33 +10,36 @@ import com.logic.nd.exceptions.NotFreeVariableException;
 import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.nd.NDFeedback;
 import com.logic.feedback.others.AlphabetSequenceIterator;
+import static com.logic.feedback.nd.feedback.FeedbackMessages.*;
 
 public class NotFreeVariableFeedback {
 
     public static void produceFeedback(NotFreeVariableException exception, NDFeedback feedback, FeedbackLevel level) {
-        String error = "Error in this rule!";
-
         boolean isEUni = exception.getRule() instanceof ASTEUni;
+
         feedback.setFeedback(switch (level) {
             case NONE -> "";
-            case LOW -> "Something is wrong!";
-            case MEDIUM -> "Missing side condition!";
+            case LOW -> ERROR_GENERIC;
+            case MEDIUM -> MISSING_SIDE_CONDITION;
             case HIGH -> {
-                String errorHyp = "Term " + exception.getTerm() + " is not free to " + exception.getFrom() + " in " + exception.getTo() + "!";
-                if (isEUni) feedback.getConclusion().setFeedback(errorHyp);
-                else feedback.getHypotheses().get(0).setFeedback(errorHyp);
+                String errorHyp = String.format(TERM_NOT_FREE, exception.getTerm(), exception.getFrom(), exception.getTo());
+                if (isEUni)
+                    feedback.getConclusion().setFeedback(errorHyp);
+                else
+                    feedback.getHypotheses().get(0).setFeedback(errorHyp);
 
-                yield error;
+                yield MISSING_SIDE_CONDITION;
             }
             case SOLUTION -> {
-                String errorHyp = "Term " + exception.getTerm() + " is not free to " + exception.getFrom() + " in " + exception.getTo() + "!";
-                if (isEUni) feedback.getConclusion().setFeedback(errorHyp);
-                else feedback.getHypotheses().get(0).setFeedback(errorHyp);
-
+                String errorHyp = String.format(TERM_NOT_FREE, exception.getTerm(), exception.getFrom(), exception.getTo());
+                if (isEUni)
+                    feedback.getConclusion().setFeedback(errorHyp);
+                else
+                    feedback.getHypotheses().get(0).setFeedback(errorHyp);
 
                 ASTVariable var;
                 IASTExp formula = null;
-                AlphabetSequenceIterator it = new AlphabetSequenceIterator('a',9);
+                AlphabetSequenceIterator it = new AlphabetSequenceIterator('a', 9);
                 while (it.hasNext()) {
                     var = new ASTVariable(it.next());
                     if (!exception.getTo().isABoundedVariable(var)) {
@@ -48,12 +51,13 @@ public class NotFreeVariableFeedback {
                 if (exception.getRule() instanceof ASTEUni rule)
                     feedback.addPreview(new ASTEUni(new ASTHypothesis(rule.getHyp().getConclusion(), null), formula));
                 else if (exception.getRule() instanceof ASTIExist rule)
-                    new ASTIExist(new ASTHypothesis(formula, null), rule.getConclusion());
+                    feedback.addPreview(new ASTIExist(new ASTHypothesis(formula, null), rule.getConclusion()));
 
-                yield error + "\nPossible solution: ";
+                yield MISSING_SIDE_CONDITION + SOLUTION_SUFFIX;
             }
         });
     }
+
 
 }
 

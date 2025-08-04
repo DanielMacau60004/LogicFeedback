@@ -54,7 +54,6 @@ public class ConclusionFeedback {
                 Set<String> possibleMarks = env.getMatchingParent(hypothesis.getConclusion())
                         .stream().filter(Utils::isInteger).collect(Collectors.toSet());
                 if (!possibleMarks.isEmpty()) {
-                    feedback.getConclusion().setGenHints(false);
                     error += "\nConsider:";
 
                     feedback.getConclusion().addPreview(new ASTHypothesis(hypothesis.getConclusion(),

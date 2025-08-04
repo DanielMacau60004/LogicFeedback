@@ -8,34 +8,44 @@ import com.logic.nd.asts.IASTND;
 import com.logic.nd.exceptions.FreeVariableException;
 
 import java.util.Map;
+import static com.logic.feedback.nd.feedback.FeedbackMessages.*;
 
 public class FreeVariableFeedback {
 
     public static void produceFeedback(FreeVariableException exception, Map<IASTND, NDFeedback> mapper, FeedbackLevel level) {
         NDFeedback feedback = mapper.get(exception.getRule());
 
-        String error = "Error in this rule!";
         feedback.setFeedback(switch (level) {
             case NONE -> "";
-            case LOW -> "Something is wrong!";
+            case LOW -> ERROR_GENERIC;
             case MEDIUM -> {
                 for (IASTND h : exception.getFreeHypotheses()) {
                     IFeedback f = mapper.get(h).getConclusion();
-                    f.setFeedback("Something is wrong!");
+                    f.setFeedback(ERROR_GENERIC);
                 }
-                yield "Missing side condition!";
+                yield MISSING_SIDE_CONDITION;
             }
             case HIGH, SOLUTION -> {
                 ASTVariable from = exception.getFrom();
                 ASTVariable variable = exception.getVariable();
                 for (IASTND h : exception.getFreeHypotheses()) {
                     IFeedback f = mapper.get(h).getConclusion();
-                    f.setFeedback("Open hypothesis!" +
-                            (from != null && variable != null ? "\nVariables: " + from + " ≠ " + variable : "") +
-                            (variable != null ? "\nVariable " + variable.getName() + " appears free!" : "\nFree variable!"));
+
+                    StringBuilder msg = new StringBuilder(OPEN_HYPOTHESIS);
+                    if (from != null && variable != null) {
+                        msg.append(String.format(VARIABLES_NOT_EQUAL, from, variable));
+                    }
+                    if (variable != null) {
+                        msg.append(String.format(VARIABLE_APPEARS_FREE, variable.getName()));
+                    } else {
+                        msg.append(FREE_VARIABLE);
+                    }
+
+                    f.setFeedback(msg.toString());
                 }
-                yield error;
+                yield MISSING_SIDE_CONDITION;
             }
         });
     }
+
 }

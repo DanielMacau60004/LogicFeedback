@@ -87,7 +87,7 @@ public class NDFeedbacks {
                 }
             } catch (Exception e) {
                 error = true;
-                handleException(e, mapper, level, hasProblem);
+                handleException(e, mapper, level, hasProblem, isFOL);
             }
 
             return new NDProofFeedback(ndProof, feedback, level, error);
@@ -97,7 +97,7 @@ public class NDFeedbacks {
     }
 
     private static void handleException(Exception e, Map<IASTND, NDFeedback> mapper, FeedbackLevel level,
-                                        boolean hasProblem) {
+                                        boolean hasProblem, boolean isFOL) {
         if (e instanceof CloseMarkException cm) {
             CloseMarkFeedback.produceFeedback(cm, mapper.get(cm.getRule()), level);
         } else if (e instanceof MarkAssignException ma) {
@@ -112,7 +112,7 @@ public class NDFeedbacks {
             NotFreeVariableFeedback.produceFeedback(nf, mapper.get(nf.getRule()), level);
         } else if (e instanceof ConclusionException c) {
             ConclusionFeedback.produceFeedback(c, mapper, level);
-            if(hasProblem) ConclusionHint.produceHint(c, mapper, level);
+            if(hasProblem) ConclusionHint.produceHint(c, mapper, level, isFOL);
         } else if (e instanceof NDRuleException nr) {
             RuleFeedback.produceFeedback(nr, mapper.get(nr.getRule()), level);
         } else {

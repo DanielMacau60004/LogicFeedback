@@ -11,13 +11,12 @@ import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.nd.algorithm.*;
 import com.logic.feedback.nd.algorithm.proofs.strategies.SizeTrimStrategy;
 import com.logic.feedback.others.AlphabetSequenceIterator;
-import com.logic.others.Utils;
 
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.logic.feedback.nd.hints.HintsMessages.*;
 
 public class Hints {
 
@@ -25,18 +24,18 @@ public class Hints {
                                       IFormula goalConclusion, Set<IFormula> goalPremises,
                                       FeedbackLevel level, boolean isFOL) {
 
-        String error = "No hint found!\nYou may have diverged from the problem!";
-        INDProof genProof;
-        genProof = getAlgoProof(mainConclusion, mainPremises, goalConclusion, goalPremises, isFOL);
+        String error = NO_HINT_FOUND;
+        INDProof genProof = getAlgoProof(mainConclusion, mainPremises, goalConclusion, goalPremises, isFOL);
 
         if (genProof != null && genProof.numberOfRules() > 0) {
-            error = "You are " + genProof.numberOfRules() + " rule(s) away from a solution!";
+            error = String.format(RULES_AWAY, genProof.numberOfRules());
             if (level.ordinal() > 2)
-                error += "\nTry to apply " + genProof.getAST().getRule() + " rule!";
+                error += String.format(TRY_TO_APPLY_RULE, genProof.getAST().getRule());
         }
 
         return error;
     }
+
 
     private static INDProof getAlgoProof(IFormula mainConclusion, Set<IFormula> mainPremises,
                                          IFormula goalConclusion, Set<IFormula> goalPremises, boolean isFOL) {
