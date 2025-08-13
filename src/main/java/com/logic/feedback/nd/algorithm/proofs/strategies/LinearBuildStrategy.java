@@ -6,6 +6,7 @@ import com.logic.feedback.nd.algorithm.proofs.GoalNode;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionEdge;
 import com.logic.feedback.nd.algorithm.transition.TransitionNode;
+import com.logic.others.Utils;
 
 import java.util.*;
 
@@ -65,9 +66,15 @@ public class LinearBuildStrategy implements IBuildStrategy {
                 if (edge.hasProduces() && state.numberOfHypotheses() + 1 > settings.getHypothesesPerGoalLimit())
                     continue;
 
+                boolean shouldAddEdge = true;
                 for (TransitionNode transition : edge.getTransitions()) {
                     GoalNode newState = state.transit(transition.getTo(), transition.getProduces(),
                             transition.getFree());
+
+                    if(newState == null){
+                        shouldAddEdge = false;
+                        break;
+                    }
 
                     boolean contains = nodes.containsKey(newState);
 
@@ -90,7 +97,8 @@ public class LinearBuildStrategy implements IBuildStrategy {
 
                 }
 
-                edges.add(e);
+                if(shouldAddEdge) edges.add(e);
+
             }
         }
 

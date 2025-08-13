@@ -66,16 +66,7 @@ public class AlgoProofFOLGoalBuilder {
     }
 
     public GoalNode build(Set<IFOLFormula> premises, BitGraphHandler handler) {
-        Set<IFOLFormula> notFree = new HashSet<>();
-        Set<IFOLFormula> formulas = new HashSet<>(premises);
-        formulas.addAll(hypotheses);
-
-        for (IFOLFormula formula : formulas) {
-            for (ASTVariable var : notFreeVars)
-                if (formula.appearsFreeVariable(var)) notFree.add(formula);
-        }
-
         return new GoalNode(handler.getIndex(goal), handler.toBitSet(new HashSet<>(hypotheses)),
-                height, handler.toBitSet(new HashSet<>(notFree)), handler);
+                height, notFreeVars, handler);
     }
 }

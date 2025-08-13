@@ -107,7 +107,7 @@ public class NDFOLTest {
             /*2*///"∀y(C(y) ∨ D(y)). ∀x(C(x) → L(x)). ∃x¬L(x). ∃x D(x)",
             /*3*/"∀x(C(x) → S(x)). ∀x(¬A(x,b) → ¬S(x)). ∀x((C(x)∨S(x)) → A(x,b))",
             /*4*/"L(a,b). ∀x(∃y(L(y,x) ∨ L(x,y)) → L(x,x)). ∃x L(x,a)",
-            /*5*///"∀x ∀y (L(x,y) → L(y,x)). ∃x ∀y L(x,y). ∀x ∃y L(x,y)", //Requires aux variables
+            /*5*/"∀x ∀y (L(x,y) → L(y,x)). ∃x ∀y L(x,y). ∀x ∃y L(x,y)", //Requires aux variables
 
             //Others
             //"∀x∀y P(x,y). ∀y∀x P(y,x)" //Require an aux variable z
@@ -145,6 +145,7 @@ public class NDFOLTest {
             Assertions.assertEquals(premises, premisesProof);
         });
     }
+
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -327,6 +328,41 @@ public class NDFOLTest {
             Set<IFormula> premisesProof = new HashSet<>();
             proof.getPremises().forEachRemaining(premisesProof::add);
             Assertions.assertEquals(premises, premisesProof);
+        });
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "¬∀x P(x). ∃x ¬P(x)"
+    })
+    void testAlgorithmWithNoExtra5(String premisesAndExpression) throws Exception {
+        String[] parts = premisesAndExpression.split("\\.");
+        String expression = parts[parts.length - 1].trim();
+
+        Set<IFOLFormula> premises = new HashSet<>();
+        for (int i = 0; i < parts.length - 1; i++) {
+            premises.add(LogicAPI.parseFOL(parts[i].trim()));
+        }
+
+        Assertions.assertDoesNotThrow(() -> {
+            INDProof proof = new AlgoProofFOLBuilder(
+                    new AlgoProofFOLMainGoalBuilder(LogicAPI.parseFOL(expression))
+                            .addPremises(premises)
+                            .addTerm(new ASTVariable("w")))
+                    .setGoal(new AlgoProofFOLGoalBuilder(LogicAPI.parseFOL("∃x ¬P(x)"))
+                            .addHypothesis(LogicAPI.parseFOL("¬∃x ¬P(x)"))
+                            .addHypothesis(LogicAPI.parseFOL("¬P(w)"))
+                    )
+                    .setAlgoSettingsBuilder(
+                            new AlgoSettingsBuilder()
+                                    .setTimeout(2000)
+                                    .setTotalNodes(7)
+                                    .setTotalClosedNodes(4000))
+                    .build();
+
+            System.out.println("Size: " + proof.size() + " Height: " + proof.height());
+            System.out.println(proof);
         });
     }
 

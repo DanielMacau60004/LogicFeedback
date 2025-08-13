@@ -4,7 +4,9 @@ import com.logic.api.IFOLFormula;
 import com.logic.api.IFormula;
 import com.logic.exps.asts.others.ASTVariable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class GoalNode {
 
@@ -12,17 +14,17 @@ public class GoalNode {
 
     private final short exp;
     private final BitArray assumptions;
-    private final BitArray noFree;
+    private final Set<ASTVariable> noFree;
     private boolean isClosed;
     private int height;
     private final int hash;
 
-    public GoalNode(Short exp, BitArray assumptions, int height, BitArray noFree, BitGraphHandler handler) {
+    public GoalNode(Short exp, BitArray assumptions, int height, Set<ASTVariable> noFree, BitGraphHandler handler) {
         this(exp, assumptions, null, height, noFree, handler);
     }
 
     GoalNode(Short exp, BitArray assumptions, Short assumption, int height
-            , BitArray noFree, BitGraphHandler handler) {
+            , Set<ASTVariable> noFree, BitGraphHandler handler) {
         this.exp = exp;
         this.assumptions = assumptions;
         this.height = height;
@@ -38,7 +40,7 @@ public class GoalNode {
     }
 
     public void updateHeight(int newHeight) {
-        if(newHeight < height) height = newHeight;
+        if (newHeight < height) height = newHeight;
     }
 
     public int getHeight() {
@@ -62,8 +64,7 @@ public class GoalNode {
     }
 
     public void resetClose() {
-        isClosed = (assumptions.contains(exp) || handler.getPremises().contains(exp))
-                && (noFree == null || !noFree.contains(exp));
+        isClosed = (assumptions.contains(exp) || handler.getPremises().contains(exp));
     }
 
     public Integer numberOfHypotheses() {
@@ -74,24 +75,23 @@ public class GoalNode {
         return handler.fromBitSet(assumptions);
     }
 
-    public Set<IFormula> getNotFree() {
-        return handler.fromBitSet(noFree);
+    public Set<ASTVariable> getNotFree() {
+        return noFree;
     }
 
     public GoalNode transit(IFormula exp, IFormula assumption, ASTVariable notFree) {
-        BitArray noFree = this.noFree;
+        Set<ASTVariable> noFree = this.noFree;
 
         if (notFree != null) {
-            noFree = new BitArray(this.noFree);
+            noFree = new HashSet<>(noFree);
+            noFree.add(notFree);
 
             for (short i : assumptions.getData())
                 if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
-                    noFree.set(i);
-
-            BitArray premises = handler.getPremises();
-            for (short i : premises.getData())
+                    return null;
+            for (short i : handler.getPremises().getData())
                 if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
-                    noFree.set(i);
+                    return null;
 
         }
 
@@ -102,9 +102,16 @@ public class GoalNode {
         }
 
         if (assumption != null)
-            return new GoalNode(handler.getIndex(exp), assumptions, handler.getIndex(assumption),
+            return new
+
+                    GoalNode(handler.getIndex(exp), assumptions, handler.
+
+                    getIndex(assumption),
+
                     height + 1, noFree, handler);
-        return new GoalNode(handler.getIndex(exp), assumptions, height + 1, noFree, handler);
+        return new
+
+                GoalNode(handler.getIndex(exp), assumptions, height + 1, noFree, handler);
     }
 
     @Override

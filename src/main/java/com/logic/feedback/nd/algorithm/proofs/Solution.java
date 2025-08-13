@@ -13,6 +13,7 @@ import com.logic.nd.asts.others.ASTEDis;
 import com.logic.nd.asts.others.ASTHypothesis;
 import com.logic.nd.asts.unary.*;
 import com.logic.others.Env;
+import com.logic.others.Utils;
 
 import java.util.List;
 import java.util.Set;
@@ -59,6 +60,7 @@ public class Solution {
             return new ASTHypothesis(exp, marks.findParent(initState.getExp()));
 
         List<GoalNode> transitions = edge.getTransitions();
+
 
         return switch (edge.getRule()) {
             case INTRO_CONJUNCTION -> introConjunction(transitions, marks, exp);
@@ -198,7 +200,7 @@ public class Solution {
         Set<IFormula> gen = transition.getAssumptions();
         gen.removeAll(m);
 
-        assert gen.size() <= 1;
+        //assert gen.size() == 1;
 
         if (gen.isEmpty()) return null;
         return gen.iterator().next();

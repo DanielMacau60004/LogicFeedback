@@ -135,6 +135,7 @@ public class Hints {
                     .setGoal(new AlgoProofFOLGoalBuilder(goalConclusion)
                             .addHypotheses(goalPremises)
                             //TODO hardcoded, some may require one variable others more..
+                            //TODO does not keep track of variables that cannot appear open
                             .addTerm(fresh)) //A fresh variable!
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
