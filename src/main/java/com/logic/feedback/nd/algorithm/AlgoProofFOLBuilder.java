@@ -65,12 +65,12 @@ public class AlgoProofFOLBuilder {
         ITransitionGraph tg = new TransitionGraphFOL(expressions, forbiddenRules, terms);
         tg.build();
 
-        System.out.println(Utils.getToken(tg.toString()));
+        //System.out.println(Utils.getToken(tg.toString()));
 
         IProofGraph pg = new ProofGraphFOL(problem, goal, tg, s);
         pg.build();
 
-        System.out.println(Utils.getToken(pg.toString()));
+        //System.out.println(Utils.getToken(pg.toString()));
 
         return pg;
     }

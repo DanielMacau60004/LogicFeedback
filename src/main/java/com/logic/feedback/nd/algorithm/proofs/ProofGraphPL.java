@@ -16,4 +16,13 @@ public class ProofGraphPL extends ProofGraph {
         targetGoal = state.build(handler);
     }
 
+    @Override
+    public String toString() {
+        String str = "";
+        str += "Total nodes: " + tree.size() + "\n";
+        str += "Total edges: " + tree.values().stream().filter(Objects::nonNull).mapToLong(t -> t.getTransitions().size()).sum() + "\n";
+        for (Map.Entry<GoalNode, ProofEdge> entry : tree.entrySet())
+            str += "{" + entry.getKey().getExp() + " h:" + entry.getKey().getAssumptions()+ "} edges:" + entry.getValue() + ": \n";
+        return str;
+    }
 }

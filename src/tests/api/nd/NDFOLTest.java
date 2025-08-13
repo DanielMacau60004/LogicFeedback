@@ -270,7 +270,7 @@ public class NDFOLTest {
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
                                     //.setBuildStrategy(new LinearBuildStrategy())
-                                    .setTotalClosedNodes(10000)
+                                    .setTotalClosedNodes(1000)
                                     .setHypothesesPerGoal(5)
                                     .setTimeout(100)
                                     .setTrimStrategy(new HeightTrimStrategy())
@@ -390,7 +390,7 @@ public class NDFOLTest {
                             .addPremises(premises))
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
-                                    .setTimeout(25000)
+                                    //.setTimeout(25000)
                                     .setTotalClosedNodes(10000))
                     //.addTerm(new ASTVariable("a"))
                     //.addTerm(new ASTVariable("b"))

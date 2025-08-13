@@ -10,13 +10,13 @@ import java.util.Objects;
 public class ProofEdge {
 
     private final ERule rule;
-    private final List<ProofTransitionEdge> transitions;
+    private final List<GoalNode> transitions;
 
-    public ProofEdge(ERule rule, GoalNode transition, IFormula produces) {
+    public ProofEdge(ERule rule, GoalNode transition) {
         this.rule = rule;
         this.transitions = new LinkedList<>();
 
-        transitions.add(new ProofTransitionEdge(transition, produces));
+        transitions.add(transition);
     }
 
     public ProofEdge(ERule rule) {
@@ -24,20 +24,25 @@ public class ProofEdge {
         this.transitions = new LinkedList<>();
     }
 
-    public void addTransition(GoalNode to, IFormula produces) {
-        transitions.add(new ProofTransitionEdge(to, produces));
+    public void addTransition(GoalNode to) {
+        transitions.add(to);
     }
 
     public int height() {
-        return transitions.stream().mapToInt(i -> i.getNode().getHeight()).sum();
+        int height = 0;
+        for(GoalNode g : transitions)
+            height += g.getHeight();
+        return height;
     }
 
-    public List<ProofTransitionEdge> getTransitions() {
+    public List<GoalNode> getTransitions() {
         return transitions;
     }
 
     public boolean isClosed() {
-        return transitions.stream().allMatch(s -> s.getNode().isClosed());
+        for(GoalNode g : transitions)
+            if(!g.isClosed()) return  false;
+        return true;
     }
 
     public ERule getRule() {

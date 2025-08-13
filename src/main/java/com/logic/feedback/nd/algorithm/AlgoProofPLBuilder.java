@@ -61,12 +61,12 @@ public class AlgoProofPLBuilder {
         ITransitionGraph tg = new TransitionGraphPL(expressions, forbiddenRules);
         tg.build();
 
-        System.out.println(Utils.getToken(tg.toString()));
+        //System.out.println(Utils.getToken(tg.toString()));
 
         IProofGraph pg = new ProofGraphPL(problem, goal, tg, s);
         pg.build();
 
-        System.out.println(Utils.getToken(pg.toString()));
+        //System.out.println(Utils.getToken(pg.toString()));
 
         return pg;
     }

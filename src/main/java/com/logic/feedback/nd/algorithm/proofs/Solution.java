@@ -3,8 +3,6 @@ package com.logic.feedback.nd.algorithm.proofs;
 import com.logic.api.IFormula;
 import com.logic.api.INDProof;
 import com.logic.exps.asts.IASTExp;
-import com.logic.feedback.FeedbackLevel;
-import com.logic.feedback.nd.NDFeedbacks;
 import com.logic.nd.NDProofs;
 import com.logic.nd.asts.IASTND;
 import com.logic.nd.asts.binary.ASTEExist;
@@ -15,9 +13,9 @@ import com.logic.nd.asts.others.ASTEDis;
 import com.logic.nd.asts.others.ASTHypothesis;
 import com.logic.nd.asts.unary.*;
 import com.logic.others.Env;
-import com.logic.others.Utils;
 
 import java.util.List;
+import java.util.Set;
 
 //TODO remake this
 public class Solution {
@@ -60,7 +58,7 @@ public class Solution {
         if (edge == null)
             return new ASTHypothesis(exp, marks.findParent(initState.getExp()));
 
-        List<ProofTransitionEdge> transitions = edge.getTransitions();
+        List<GoalNode> transitions = edge.getTransitions();
 
         return switch (edge.getRule()) {
             case INTRO_CONJUNCTION -> introConjunction(transitions, marks, exp);
@@ -82,98 +80,127 @@ public class Solution {
         };
     }
 
-    private IASTND introConjunction(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
-        IASTND second = rule(transitions.get(1).getNode(), marks);
+    private IASTND introConjunction(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
+        IASTND second = rule(transitions.get(1), marks);
         return new ASTIConj(first, second, exp);
     }
 
-    private IASTND elimConjunctionLeft(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND elimConjunctionLeft(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTELConj(first, exp);
     }
 
-    private IASTND elimConjunctionRight(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND elimConjunctionRight(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTERConj(first, exp);
     }
 
-    private IASTND introDisjunctionLeft(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND introDisjunctionLeft(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTILDis(first, exp);
     }
 
-    private IASTND introDisjunctionRight(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND introDisjunctionRight(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTIRDis(first, exp);
     }
 
-    private IASTND elimDisjunction(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
+    private IASTND elimDisjunction(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
         Env<IFormula, String> envM = marks.beginScope();
         Env<IFormula, String> envN = marks.beginScope();
-        envM.bind(transitions.get(1).getProduces(), String.valueOf(mark++));
-        envN.bind(transitions.get(2).getProduces(), String.valueOf(mark++));
-        IASTND first = rule(transitions.get(0).getNode(), marks);
-        IASTND second = rule(transitions.get(1).getNode(), envM);
-        IASTND third = rule(transitions.get(2).getNode(), envN);
-        return new ASTEDis(first, second, third, exp,
-                envM.findParent(transitions.get(1).getProduces()),
-                envN.findParent(transitions.get(2).getProduces()));
+
+        IFormula m = getAssumption(marks, transitions.get(1));
+        IFormula n = getAssumption(marks, transitions.get(2));
+        if(m != null) envM.bind(m, String.valueOf(mark++));
+        if(n != null) envN.bind(n, String.valueOf(mark++));
+
+        IASTND first = rule(transitions.get(0), marks);
+        IASTND second = rule(transitions.get(1), envM);
+        IASTND third = rule(transitions.get(2), envN);
+        return new ASTEDis(first, second, third, exp, envM.findParent(m), envN.findParent(n));
     }
 
-    private IASTND introImplication(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
+    private IASTND introImplication(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
         Env<IFormula, String> envM = marks.beginScope();
-        envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
-        IASTND first = rule(transitions.get(0).getNode(), envM);
-        return new ASTIImp(first, exp, envM.findParent(transitions.get(0).getProduces()));
+
+        IFormula m = getAssumption(marks, transitions.get(0));
+        if(m != null) envM.bind(m, String.valueOf(mark++));
+        //envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
+
+        IASTND first = rule(transitions.get(0), envM);
+        return new ASTIImp(first, exp, envM.findParent(m));
     }
 
-    private IASTND introNegation(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
+    private IASTND introNegation(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
         Env<IFormula, String> envM = marks.beginScope();
-        envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
-        IASTND first = rule(transitions.get(0).getNode(), envM);
-        return new ASTINeg(first, exp, envM.findParent(transitions.get(0).getProduces()));
+
+        IFormula m = getAssumption(marks, transitions.get(0));
+        if(m != null) envM.bind(m, String.valueOf(mark++));
+        //envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
+
+        IASTND first = rule(transitions.get(0), envM);
+        return new ASTINeg(first, exp, envM.findParent(m));
     }
 
-    private IASTND elimImplication(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
-        IASTND second = rule(transitions.get(1).getNode(), marks);
+    private IASTND elimImplication(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
+        IASTND second = rule(transitions.get(1), marks);
         return new ASTEImp(first, second, exp);
     }
 
-    private IASTND absurdity(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
+    private IASTND absurdity(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
         Env<IFormula, String> envM = marks.beginScope();
-        envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
-        IASTND first = rule(transitions.get(0).getNode(), envM);
-        return new ASTAbsurdity(first, exp, envM.findParent(transitions.get(0).getProduces()));
+
+        IFormula m = getAssumption(marks, transitions.get(0));
+        if(m != null) envM.bind(m, String.valueOf(mark++));
+        //envM.bind(transitions.get(0).getProduces(), String.valueOf(mark++));
+
+        IASTND first = rule(transitions.get(0), envM);
+        return new ASTAbsurdity(first, exp, envM.findParent(m));
     }
 
-    private IASTND elimNegation(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
-        IASTND second = rule(transitions.get(1).getNode(), marks);
+    private IASTND elimNegation(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
+        IASTND second = rule(transitions.get(1), marks);
         return new ASTENeg(first, second, exp);
     }
 
-    private IASTND elimUniversal(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND elimUniversal(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTEUni(first, exp);
     }
 
-    private IASTND introExistential(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND introExistential(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTIExist(first, exp);
     }
 
-    private IASTND introUniversal(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
-        IASTND first = rule(transitions.get(0).getNode(), marks);
+    private IASTND introUniversal(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
+        IASTND first = rule(transitions.get(0), marks);
         return new ASTIUni(first, exp);
     }
 
-    private IASTND elimExistential(List<ProofTransitionEdge> transitions, Env<IFormula, String> marks, IASTExp exp) {
+    private IASTND elimExistential(List<GoalNode> transitions, Env<IFormula, String> marks, IASTExp exp) {
         Env<IFormula, String> envM = marks.beginScope();
-        envM.bind(transitions.get(1).getProduces(), String.valueOf(mark++));
-        IASTND first = rule(transitions.get(0).getNode(), marks);
-        IASTND second = rule(transitions.get(1).getNode(), envM);
-        return new ASTEExist(first, second, exp, envM.findParent(transitions.get(1).getProduces()));
+
+        IFormula m = getAssumption(marks, transitions.get(1));
+        if(m != null) envM.bind(m, String.valueOf(mark++));
+        //envM.bind(transitions.get(1).getProduces(), String.valueOf(mark++));
+
+        IASTND first = rule(transitions.get(0), marks);
+        IASTND second = rule(transitions.get(1), envM);
+        return new ASTEExist(first, second, exp, envM.findParent(m));
+    }
+
+    private IFormula getAssumption(Env<IFormula, String> marks, GoalNode transition) {
+        Set<IFormula> m = marks.mapParent().keySet();
+        Set<IFormula> gen = transition.getAssumptions();
+        gen.removeAll(m);
+
+        assert gen.size() <= 1;
+
+        if (gen.isEmpty()) return null;
+        return gen.iterator().next();
     }
 }

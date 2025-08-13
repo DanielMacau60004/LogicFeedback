@@ -86,7 +86,7 @@ public class LinearBuildStrategy implements IBuildStrategy {
                         explore.add(newState);
                     }
 
-                    e.addTransition(newState, transition.getProduces());
+                    e.addTransition(newState);
 
                 }
 

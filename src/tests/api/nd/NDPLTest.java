@@ -407,11 +407,11 @@ public class NDPLTest {
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
                                     //.setHypothesesPerState(5)
-                                    .setTimeout(20000)
-                                    .setTotalClosedNodes(Integer.MAX_VALUE)
-                                    .setHeightLimit(Integer.MAX_VALUE)
-                                    .setHypothesesPerGoal(Integer.MAX_VALUE)
-                                    .setTrimStrategy(new HeightTrimStrategy())
+                                    .setTimeout(2000)
+                                    //.setTotalClosedNodes(Integer.MAX_VALUE)
+                                    //.setHeightLimit(Integer.MAX_VALUE)
+                                    //.setHypothesesPerGoal(Integer.MAX_VALUE)
+                                    //.setTrimStrategy(new HeightTrimStrategy())
                     )
 
                     .build();
