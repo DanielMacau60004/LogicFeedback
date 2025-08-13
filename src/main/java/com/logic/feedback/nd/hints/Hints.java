@@ -11,6 +11,7 @@ import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.nd.algorithm.*;
 import com.logic.feedback.nd.algorithm.proofs.strategies.SizeTrimStrategy;
 import com.logic.feedback.others.AlphabetSequenceIterator;
+import com.logic.others.Utils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +29,8 @@ public class Hints {
         INDProof genProof = getAlgoProof(mainConclusion, mainPremises, goalConclusion, goalPremises, isFOL);
 
         if (genProof != null && genProof.numberOfRules() > 0) {
+            System.out.println(Utils.getToken(genProof.toString()));
+
             error = String.format(RULES_AWAY, genProof.numberOfRules());
             if (level.ordinal() > 2)
                 error += String.format(TRY_TO_APPLY_RULE, genProof.getAST().getRule());

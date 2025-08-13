@@ -47,16 +47,6 @@ public class AlgoProofFOLMainGoalBuilder extends AlgoProofFOLGoalBuilder {
         return this;
     }
 
-    public AlgoProofFOLMainGoalBuilder setNoFreeVariables(Set<ASTVariable> notFreeVars) {
-        this.notFreeVars.addAll(notFreeVars);
-        return this;
-    }
-
-    public AlgoProofFOLMainGoalBuilder addNoFreeVariable(ASTVariable notFreeVar) {
-        this.notFreeVars.add(notFreeVar);
-        return this;
-    }
-
     public AlgoProofFOLMainGoalBuilder addTerm(AASTTerm term) {
         this.terms.add(term);
         return this;

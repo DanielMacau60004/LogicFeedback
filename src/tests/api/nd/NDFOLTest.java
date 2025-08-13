@@ -1,11 +1,17 @@
 package api.nd;
 
-import com.logic.api.*;
+import com.logic.api.IFOLFormula;
+import com.logic.api.IFormula;
+import com.logic.api.INDProof;
+import com.logic.api.LogicAPI;
 import com.logic.exps.asts.others.ASTVariable;
-import com.logic.feedback.nd.algorithm.*;
+import com.logic.feedback.nd.algorithm.AlgoProofFOLBuilder;
+import com.logic.feedback.nd.algorithm.AlgoProofFOLGoalBuilder;
+import com.logic.feedback.nd.algorithm.AlgoProofFOLMainGoalBuilder;
+import com.logic.feedback.nd.algorithm.AlgoSettingsBuilder;
+import com.logic.feedback.nd.algorithm.proofs.strategies.HeightTrimStrategy;
 import com.logic.nd.ERule;
 import com.logic.others.Utils;
-import com.logic.feedback.nd.algorithm.proofs.strategies.HeightTrimStrategy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -146,6 +152,101 @@ public class NDFOLTest {
         });
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "∀x P(x). ∀y P(y)",
+            "∀x (P(x) → P(x))",
+            "∀x (P(a) → Q(x)). P(a) → ∀z Q(z)",
+            "∀x P(x) ∧ ∀y Q(y). ∀z (P(z) ∧ Q(z))",
+            "∀x (P(x) → Q(x)). ∀y1 P(y1) → ∀y2 Q(y2)",
+            "∀z (P(z) ∧ Q(z)). ∀y P(y) ∧ ∀y Q(y)",
+            "∀x (P(x) → Q(x)). ∀x ¬Q(x). ∀x ¬P(x)",
+            "∀x1 P(x1) ∨ ∀x2 Q(x2). ∀x (P(x) ∨ Q(x))",
+            "∀x ∀y (P(x) → Q(y)). ∀x (P(x) → ∀z Q(z))",
+            "∀x (P(x) → Q (x)). ∀x (Q(x) → R(x)). ∀x( P(x) → R(x))",
+            "∀x (P(x) ∨ Q(x)). ¬∀x P(x). ¬∀x ¬Q(x)",
+            "∀x (P(x) ∧ Q(x)). ∀x ∀y (P(x) ∧ Q(y))",
+
+            "∀x ∀y R(x,y). ∀x R(x,x)",
+            "∀x ¬∀y R(x,y). ¬∀x ∀y R(x,y)",
+            "∀x R(x,x). ∀x¬ ∀y ¬R(x,y)",
+            "∀x ¬R(x,x). ¬∀x ∀y (R(x,y) ∨ R(y,x))",
+            "¬∀x ¬∀y R(y,x). ∀x ¬∀y ¬R(x,y)",
+            "∀x R(x,x). ∀x ∀y (R(x,y) → ¬∀z ¬(R(x,z) ∧ R(z,y)))",
+            "∀x ∀y R(x,y). ∀x (R(x,x) ∧ ∀y R(y,x))",
+            "∀x ∀y R(x,y). ∀x ∀y (R(x,y) ∧ R(y,x))",
+            "∀x ∀y (R(x,y) → R(y,x)). ∀x ∀y ¬(R(x,y) ∧ R(y,x)). ∀x ∀y ¬R(x,y)",
+            "∀x ∀y (Q(x,y) → Q(y,x)). ∀x ∀y (¬Q(x,y) ∨ ¬Q(y,x)). ∀x ∀y ¬Q(x,y)",
+            //"∀x ¬∀y ¬R(x,y). ∀x ¬∀y ∀z ¬(R(x,y) ∧ R(y,z))", solvable but requires more time
+            "∀x ∀y (R(x,y) → R(y,x)). ∀x ∀y ∀z ((R(x,y) ∧ R(y,z)) → R(x,z)). ∀x ¬∀y ¬R(x,y). ∀x R(x,x)",
+            "∀x ¬R(x,x). ∀x ∀y ∀z ((R(x,y) ∧ R(y,z)) → R(x,z)). ∀x ∀y ∀z ¬((R(x,y) ∧ R(y,z)) ∧ R(z,x))",
+            "∀x ∀y ∀z ((R(x,y) ∧ R(x,z)) → R(y,z)). ∀x R(x,x). ∀x ∀y ∀z ((R(x,y) ∧ R(y,z)) → R(x,z))",
+
+            "∃x P(x). ∃y P(y)",
+            "¬∃x P(x). ∃x ¬P(x)",
+            "∃x1 (P(a) → Q(x1)). P(a) → ∃x2 Q(x2)",
+            "∃x (P(x) ∧ Q(x)). ∃y P(y) ∧ ∃z Q(z)",
+            "∃x (P(x) ∨ Q(x)). ∃y P(y) ∨ ∃z Q(z)",
+            "∃x P(x) ∨ ∃y Q(y). ∃z (P(z) ∨ Q(z))",
+            "P(a) → ∃x Q(x). ∃x (P(a) → Q(x))",
+
+            "∃x ∃y (R(x,y) → R(y,x))",
+            "∃x ∃y R(x,y). ∃x ∃y R(y,x)",
+            "∃x R(x,x). ∃x ∃y (R(x,y) ∧ R(y,x))",
+            "¬∃x ∃y R(x,y). ¬∃y R(y,y)",
+            "¬∃x ∃y (R(x,y) ∧ ¬R(x,y))",
+            "∃x R(x,x) ∨ ∃x (R(x,x) → ¬∃y R(y,x))",
+            "R(a,b) ∧ R(b,c). ¬Q(a). Q(c). ∃x ∃y ((¬Q(x) ∧ Q(y)) ∧ R(x,y))",
+            //"∃x ∃y ¬∃z ¬P(x,y,z). ¬∃x ¬∃y ∃z P(y,z,x)", solvable but requires more time
+
+            "¬∃x P(x). ∀x ¬P(x)",
+            "∃x ¬P(x). ¬∀x P(x)",
+            "¬∀x P(x). ∃x ¬P(x)",
+            "∀x ¬P(x). ¬∃x P(x)",
+            "∀x (∃y P(y) → Q(x)). ∀x ∃y(P(y) → Q(x))",
+            "∀x ¬∀y (P(x,y) → Q(x,y)). ∀x ∃y P(x,y)",
+            "∀x (P(x,x) ∨ ∀y Q(x,y)). ∀x (∃y P(x,y) ∨ Q(x,x))",
+            "∃x (P(x,x) ∧ ∀y Q(x,y)). ∃x (∃y P(x,y) ∧ Q(x,x))",
+            "∀x ∃y R(x,y) ∨ ¬∀x R(x,x)",
+            "∀x ∃y R(x,y) → ¬∃x R(x,x). ∃x ∀y R(y,x). ∀x ¬R(x,x)",
+            "∀x (P(x) → ∃y R(y,x)). ∃z R(z,a) ∨ ¬∀x P(x)",
+            //"∀x ∀y ∀z ((R(x,y) ∨ R(z,y)) ∨ R(z,x)). ∃x ∃y ∀z (R(z,x) ∨ R(z,y))",  solvable but requires more time
+
+    })
+    void testAlgorithmMore(String premisesAndExpression) throws Exception {
+        String[] parts = premisesAndExpression.split("\\.");
+        String expression = parts[parts.length - 1].trim();
+
+        Set<IFOLFormula> premises = new HashSet<>();
+        for (int i = 0; i < parts.length - 1; i++) {
+            premises.add(LogicAPI.parseFOL(parts[i].trim()));
+        }
+
+        Assertions.assertDoesNotThrow(() -> {
+            INDProof proof = new AlgoProofFOLBuilder(
+                    new AlgoProofFOLMainGoalBuilder(LogicAPI.parseFOL(expression))
+                            .addPremises(premises)
+                            .addTerm(new ASTVariable("a")))
+                    .setAlgoSettingsBuilder(
+                            new AlgoSettingsBuilder()
+                                    .setTotalClosedNodes(10000)
+                                    .setHypothesesPerGoal(4)
+                                    .setTimeout(1000)
+                                    .setTrimStrategy(new HeightTrimStrategy()))
+                    //.addTerm(new ASTVariable("z"))
+                    //.addForbiddenRule(ERule.ELIM_NEGATION)
+                    .build();
+
+            System.out.println("Size: " + proof.size() + " Height: " + proof.height());
+            System.out.println(proof);
+
+            Set<IFormula> premisesProof = new HashSet<>();
+            proof.getPremises().forEachRemaining(premisesProof::add);
+            System.out.println(Utils.getToken(premisesProof + ": " + premises));
+            Assertions.assertEquals(premises, premisesProof);
+        });
+    }
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -461,10 +562,10 @@ public class NDFOLTest {
                             .addPremises(premises)
                             .addTerm(new ASTVariable("y"))
             ).setGoal(new AlgoProofFOLGoalBuilder(LogicAPI.parseFOL("∃x (P(a) → Q(x))"))
-                            .addHypothesis(LogicAPI.parseFOL("¬∃x (P(a) → Q(x))"))
-                            .addHypothesis(LogicAPI.parseFOL("P(a)"))
-                            .addHypothesis(LogicAPI.parseFOL("¬Q(a)"))
-                    ).build();
+                    .addHypothesis(LogicAPI.parseFOL("¬∃x (P(a) → Q(x))"))
+                    .addHypothesis(LogicAPI.parseFOL("P(a)"))
+                    .addHypothesis(LogicAPI.parseFOL("¬Q(a)"))
+            ).build();
 
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
             System.out.println(proof);

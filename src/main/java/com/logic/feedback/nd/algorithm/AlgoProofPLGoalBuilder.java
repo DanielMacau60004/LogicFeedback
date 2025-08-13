@@ -36,7 +36,7 @@ public class AlgoProofPLGoalBuilder {
 
     public GoalNode build(BitGraphHandler handler) {
         return new GoalNode(handler.getIndex(goal), handler.toBitSet(new HashSet<>(hypotheses)),
-                height, null, handler);
+                height, handler);
     }
 
 }

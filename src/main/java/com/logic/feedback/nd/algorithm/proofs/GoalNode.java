@@ -14,21 +14,18 @@ public class GoalNode {
 
     private final short exp;
     private final BitArray assumptions;
-    private final Set<ASTVariable> noFree;
     private boolean isClosed;
     private int height;
     private final int hash;
 
-    public GoalNode(Short exp, BitArray assumptions, int height, Set<ASTVariable> noFree, BitGraphHandler handler) {
-        this(exp, assumptions, null, height, noFree, handler);
+    public GoalNode(Short exp, BitArray assumptions, int height, BitGraphHandler handler) {
+        this(exp, assumptions, null, height, handler);
     }
 
-    GoalNode(Short exp, BitArray assumptions, Short assumption, int height
-            , Set<ASTVariable> noFree, BitGraphHandler handler) {
+    GoalNode(Short exp, BitArray assumptions, Short assumption, int height, BitGraphHandler handler) {
         this.exp = exp;
         this.assumptions = assumptions;
         this.height = height;
-        this.noFree = noFree;
         this.handler = handler;
 
         if (assumption != null)
@@ -36,7 +33,7 @@ public class GoalNode {
 
         resetClose();
 
-        hash = Objects.hash(assumptions, exp, noFree);
+        hash = Objects.hash(assumptions, exp);
     }
 
     public void updateHeight(int newHeight) {
@@ -75,16 +72,10 @@ public class GoalNode {
         return handler.fromBitSet(assumptions);
     }
 
-    public Set<ASTVariable> getNotFree() {
-        return noFree;
-    }
+
 
     public GoalNode transit(IFormula exp, IFormula assumption, ASTVariable notFree) {
-        Set<ASTVariable> noFree = this.noFree;
-
         if (notFree != null) {
-            noFree = new HashSet<>(noFree);
-            noFree.add(notFree);
 
             for (short i : assumptions.getData())
                 if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
@@ -108,10 +99,10 @@ public class GoalNode {
 
                     getIndex(assumption),
 
-                    height + 1, noFree, handler);
+                    height + 1, handler);
         return new
 
-                GoalNode(handler.getIndex(exp), assumptions, height + 1, noFree, handler);
+                GoalNode(handler.getIndex(exp), assumptions, height + 1, handler);
     }
 
     @Override
@@ -120,8 +111,7 @@ public class GoalNode {
         if (o == null || getClass() != o.getClass()) return false;
 
         GoalNode stateNode = (GoalNode) o;
-        return exp == stateNode.exp && Objects.equals(assumptions, stateNode.assumptions)
-                && Objects.equals(noFree, stateNode.noFree);
+        return exp == stateNode.exp && Objects.equals(assumptions, stateNode.assumptions);
     }
 
     @Override

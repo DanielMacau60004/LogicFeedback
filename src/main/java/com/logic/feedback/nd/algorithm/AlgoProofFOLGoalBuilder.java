@@ -14,7 +14,6 @@ public class AlgoProofFOLGoalBuilder {
 
     protected final IFOLFormula goal;
     protected final Set<IFOLFormula> hypotheses;
-    protected final Set<ASTVariable> notFreeVars;
     protected final Set<AASTTerm> terms;
     protected int height;
 
@@ -22,7 +21,6 @@ public class AlgoProofFOLGoalBuilder {
         this.goal = goal;
         this.height = 0;
         this.hypotheses = new HashSet<>();
-        this.notFreeVars = new HashSet<>();
         this.terms = new HashSet<>();
 
         goal.iterateTerms().forEachRemaining(terms::add);
@@ -45,16 +43,6 @@ public class AlgoProofFOLGoalBuilder {
         return this;
     }
 
-    public AlgoProofFOLGoalBuilder setNoFreeVariables(Set<ASTVariable> notFreeVars) {
-        this.notFreeVars.addAll(notFreeVars);
-        return this;
-    }
-
-    public AlgoProofFOLGoalBuilder addNoFreeVariable(ASTVariable notFreeVar) {
-        this.notFreeVars.add(notFreeVar);
-        return this;
-    }
-
     public AlgoProofFOLGoalBuilder addTerm(AASTTerm term) {
         this.terms.add(term);
         return this;
@@ -67,6 +55,6 @@ public class AlgoProofFOLGoalBuilder {
 
     public GoalNode build(Set<IFOLFormula> premises, BitGraphHandler handler) {
         return new GoalNode(handler.getIndex(goal), handler.toBitSet(new HashSet<>(hypotheses)),
-                height, notFreeVars, handler);
+                height, handler);
     }
 }
