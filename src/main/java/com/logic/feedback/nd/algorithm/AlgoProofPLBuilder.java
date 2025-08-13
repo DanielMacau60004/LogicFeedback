@@ -9,6 +9,7 @@ import com.logic.feedback.nd.algorithm.proofs.Solution;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphPL;
 import com.logic.nd.ERule;
+import com.logic.others.Utils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -60,12 +61,14 @@ public class AlgoProofPLBuilder {
         ITransitionGraph tg = new TransitionGraphPL(expressions, forbiddenRules);
         tg.build();
 
-        //System.out.println(Utils.getToken(tg.toString()));
+        System.out.println(Utils.getToken(tg.toString()));
 
-        IProofGraph sg = new ProofGraphPL(problem, goal, tg, s);
-        sg.build();
+        IProofGraph pg = new ProofGraphPL(problem, goal, tg, s);
+        pg.build();
 
-        return sg;
+        System.out.println(Utils.getToken(pg.toString()));
+
+        return pg;
     }
 
     public INDProof build() {

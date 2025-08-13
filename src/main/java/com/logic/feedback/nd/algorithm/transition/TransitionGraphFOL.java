@@ -136,11 +136,12 @@ public class TransitionGraphFOL extends TransitionGraphPL implements ITransition
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("Formulas: ").append(Utils.getToken(formulas.values().toString())).append("\n");
+        str.append("Formulas[").append(formulas.size()).append("]: ").append(Utils.getToken(formulas.values().toString())).append("\n");
+        str.append("Hypotheses[").append(hypotheses.size()).append("]: ").append(Utils.getToken(hypotheses.toString())).append("\n");
+        str.append("Disjunctions[").append(disjunctions.size()).append("]: ").append(disjunctions).append("\n");
+        str.append("Existentials[").append(existentials.size()).append("]: ").append(existentials).append("\n");
         str.append("Total nodes: ").append(graph.size()).append("\n");
         str.append("Total edges: ").append(graph.values().stream().mapToInt(Set::size).sum()).append("\n");
-        str.append("Disjunctions: ").append(disjunctions).append("\n");
-        str.append("Existentials: ").append(existentials).append("\n");
         for (Map.Entry<IASTExp, Set<TransitionEdge>> entry : graph.entrySet()) {
             str.append(entry.getKey()).append(":  \n");
             for (TransitionEdge transition : entry.getValue())

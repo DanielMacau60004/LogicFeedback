@@ -1,15 +1,10 @@
 package api.nd;
 
-import com.logic.api.IFOLFormula;
-import com.logic.api.IFormula;
-import com.logic.api.INDProof;
-import com.logic.api.LogicAPI;
+import com.logic.api.*;
 import com.logic.exps.asts.others.ASTVariable;
+import com.logic.feedback.nd.algorithm.*;
+import com.logic.nd.ERule;
 import com.logic.others.Utils;
-import com.logic.feedback.nd.algorithm.AlgoProofFOLBuilder;
-import com.logic.feedback.nd.algorithm.AlgoProofFOLGoalBuilder;
-import com.logic.feedback.nd.algorithm.AlgoProofFOLMainGoalBuilder;
-import com.logic.feedback.nd.algorithm.AlgoSettingsBuilder;
 import com.logic.feedback.nd.algorithm.proofs.strategies.HeightTrimStrategy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -435,6 +430,48 @@ public class NDFOLTest {
                             .addHypothesis(LogicAPI.parseFOL("¬Q(a)"))
                     ).build();
 
+            System.out.println("Size: " + proof.size() + " Height: " + proof.height());
+            System.out.println(proof);
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            /*
+            Total nodes: 85
+            Total edges: 62
+             */
+            //"¬(p → q), p"
+
+            /*
+            Total nodes: 66
+            Total edges: 49
+             */
+            "∀x (P(x) ∧ Q(x)). ∀x P(x) ∧ ∀x Q(x)"
+
+            /*
+            Total nodes: 107
+            Total edges: 70
+             */
+            //"p ∨ ¬p"
+    })
+    void testExpsSingle(String premisesAndExpression) throws Exception {
+        String[] parts = premisesAndExpression.split("\\.");
+        String expression = parts[parts.length - 1].trim();
+
+        Set<IFOLFormula> premises = new HashSet<>();
+        for (int i = 0; i < parts.length - 1; i++) {
+            premises.add(LogicAPI.parseFOL(parts[i].trim()));
+        }
+
+        Assertions.assertDoesNotThrow(() -> {
+            INDProof proof = new AlgoProofFOLBuilder(
+                    new AlgoProofFOLMainGoalBuilder(LogicAPI.parseFOL(expression))
+                            .addPremises(premises))
+                    .addForbiddenRule(ERule.ABSURDITY)
+                    .addForbiddenRule(ERule.INTRO_NEGATION)
+                    .addForbiddenRule(ERule.ELIM_NEGATION)
+                    .build();
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
             System.out.println(proof);
         });

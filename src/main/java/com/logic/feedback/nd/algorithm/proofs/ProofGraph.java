@@ -73,8 +73,9 @@ public abstract class ProofGraph implements IProofGraph {
         String str = "";
         str += "Total nodes: " + tree.size() + "\n";
         str += "Total edges: " + tree.values().stream().filter(Objects::nonNull).mapToLong(t -> t.getTransitions().size()).sum() + "\n";
-        //for (Map.Entry<IStateNode, StateEdge> entry : tree.entrySet())
-        //    str += "{" + entry.getKey().getExp() + " h:" + entry.getKey().getHypotheses() + "} edges:" + entry.getValue() + ": \n";
+        for (Map.Entry<GoalNode, ProofEdge> entry : tree.entrySet())
+            str += "{" + entry.getKey().getExp() + " h:" + entry.getKey().getAssumptions() + " " +
+                    entry.getKey().getNotFree() + "} edges:" + entry.getValue() + ": \n";
         return str;
     }
 

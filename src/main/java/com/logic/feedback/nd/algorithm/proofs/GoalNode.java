@@ -74,6 +74,10 @@ public class GoalNode {
         return handler.fromBitSet(assumptions);
     }
 
+    public Set<IFormula> getNotFree() {
+        return handler.fromBitSet(noFree);
+    }
+
     public GoalNode transit(IFormula exp, IFormula assumption, ASTVariable notFree) {
         BitArray noFree = this.noFree;
 
@@ -88,6 +92,7 @@ public class GoalNode {
             for (short i : premises.getData())
                 if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
                     noFree.set(i);
+
         }
 
         BitArray assumptions = this.assumptions;

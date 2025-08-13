@@ -11,7 +11,10 @@ import com.logic.exps.interpreters.PLWFFInterpreter;
 import com.logic.nd.ERule;
 import com.logic.others.Utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class TransitionGraphPL implements ITransitionGraph {
 
@@ -25,11 +28,14 @@ public class TransitionGraphPL implements ITransitionGraph {
 
     protected final Set<ASTOr> disjunctions;
 
+    protected final Set<IFormula> hypotheses;
+
     public TransitionGraphPL(Set<IFormula> expressions, Set<ERule> forbiddenRules) {
         this.expressions = expressions;
         this.forbiddenRules = forbiddenRules;
 
         formulas = new HashMap<>();
+        hypotheses = new HashSet<>();
 
         this.explored = new HashMap<>();
 
@@ -73,7 +79,11 @@ public class TransitionGraphPL implements ITransitionGraph {
         if (forbiddenRules.contains(edge.getRule())) return;
 
         addNode(from, canGen);
-        edge.getTransitions().forEach(t -> addNode(t.getTo().getAST(), canGen));
+        edge.getTransitions().forEach(t -> {
+            addNode(t.getTo().getAST(), canGen);
+            if (t.getProduces() != null)
+                hypotheses.add(t.getProduces());
+        });
 
         graph.get(from).add(edge);
     }
@@ -98,8 +108,8 @@ public class TransitionGraphPL implements ITransitionGraph {
 
         addEdge(not, new TransitionEdge(ERule.INTRO_NEGATION, ExpUtils.BOTF, notNeg), true);
         addEdge(ExpUtils.BOT, new TransitionEdge(ERule.ELIM_NEGATION)
-                        .addTransition(getFormula(not))
                         .addTransition(notNeg)
+                        .addTransition(getFormula(not))
                 , true);
     }
 
@@ -158,6 +168,15 @@ public class TransitionGraphPL implements ITransitionGraph {
                 .addTransition(right), true);
     }
 
+    /*
+    private void biconditionalIRule(ASTExp exp, ASTBiconditional eq) {
+        addEdge(exp, new TransitionEdge(ERule.INTRO_CONJUNCTION)
+                        .addTransition(new ASTConditional(eq.getRight(), eq.getLeft()))
+                        .addTransition(new ASTConditional(eq.getLeft(), eq.getRight()))
+                ,true);
+    }
+*/
+
     protected void genBottomUp(IASTExp exp) {
         exp = ExpUtils.removeParenthesis(exp);
         absurdityRule(exp);
@@ -199,10 +218,11 @@ public class TransitionGraphPL implements ITransitionGraph {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        str.append("Formulas: ").append(Utils.getToken(formulas.values().toString())).append("\n");
+        str.append("Formulas[").append(formulas.size()).append("]: ").append(Utils.getToken(formulas.values().toString())).append("\n");
+        str.append("Hypotheses[").append(hypotheses.size()).append("]: ").append(Utils.getToken(hypotheses.toString())).append("\n");
+        str.append("Disjunctions[").append(disjunctions.size()).append("]: ").append(disjunctions).append("\n");
         str.append("Total nodes: ").append(graph.size()).append("\n");
         str.append("Total edges: ").append(graph.values().stream().mapToInt(Set::size).sum()).append("\n");
-        str.append("Disjunctions: ").append(disjunctions).append("\n");
         for (Map.Entry<IASTExp, Set<TransitionEdge>> entry : graph.entrySet()) {
             str.append(entry.getKey()).append(":  \n");
             for (TransitionEdge transition : entry.getValue())

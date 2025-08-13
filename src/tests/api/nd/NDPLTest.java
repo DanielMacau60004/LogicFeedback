@@ -14,6 +14,7 @@ import com.logic.feedback.nd.algorithm.proofs.strategies.SizeTrimStrategy;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphFOL;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphPL;
+import com.logic.nd.ERule;
 import com.logic.others.Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -137,7 +138,6 @@ public class NDPLTest {
         });
 
     }
-
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -263,7 +263,6 @@ public class NDPLTest {
         });
     }
 
-
     @ParameterizedTest
     @ValueSource(strings = {
             "a ∨ ¬a"
@@ -324,7 +323,6 @@ public class NDPLTest {
             System.out.println(proof);
         });
     }
-
 
     @ParameterizedTest
     @ValueSource(strings = {
@@ -391,7 +389,7 @@ public class NDPLTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "(((p → (q ∨ s)) ∧ ((p ∧ r) → s)) ∧ ((s ∧ t) → (p ∨ ¬q))) → (((p ∧ (q → r)) → s) ∧ (((q ∧ s) ∧ t) → p))",
+            "(a → b) ∧ (b → a), ((a ∧ c) → (b ∧ c)) ∧ ((b ∧ c) → (a ∧ c))",
     })
     void testSingle3(String premisesAndExpression) throws Exception {
         String[] parts = premisesAndExpression.split(",");
@@ -406,16 +404,16 @@ public class NDPLTest {
             INDProof proof = new AlgoProofPLBuilder(
                     new AlgoProofPLMainGoalBuilder(LogicAPI.parsePL(expression))
                             .addPremises(premises))
-                    .setGoal(new AlgoProofPLGoalBuilder(
-                            LogicAPI.parsePL("((p ∧ (q → r)) → s) ∧ (((q ∧ s) ∧ t) → p)"))
-                            .addHypothesis(LogicAPI.parsePL("((p → (q ∨ s)) ∧ ((p ∧ r) → s)) ∧ ((s ∧ t) → (p ∨ ¬q))")))
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
                                     //.setHypothesesPerState(5)
-                                    .setTimeout(1000)
+                                    .setTimeout(20000)
                                     .setTotalClosedNodes(Integer.MAX_VALUE)
+                                    .setHeightLimit(Integer.MAX_VALUE)
+                                    .setHypothesesPerGoal(Integer.MAX_VALUE)
                                     .setTrimStrategy(new HeightTrimStrategy())
                     )
+
                     .build();
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
             System.out.println(proof);
@@ -458,16 +456,43 @@ public class NDPLTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "(∀x P(x) ∧ ∀x Q(x)) → ∀x (P(x) ∧ Q(x))"
+            /*
+            Total nodes: 85
+            Total edges: 62
+             */
+            //"¬(p → q), p"
+
+            /*
+            Total nodes: 66
+            Total edges: 49
+             */
+            //"p → ¬p, ¬p"
+"(p → q) → p, q → p"
+            /*
+            Total nodes: 107
+            Total edges: 70
+             */
+            //"p ∨ ¬p"
     })
-    void testExps(String premisesAndExpression) throws Exception {
-        Set<IFormula> exps = new HashSet<>();
-        exps.add(LogicAPI.parseFOL(premisesAndExpression));
+    void testExpsSingle(String premisesAndExpression) throws Exception {
+        String[] parts = premisesAndExpression.split(",");
+        String expression = parts[parts.length - 1].trim();
 
-        ITransitionGraph tg = new TransitionGraphFOL(exps, Set.of(), Set.of());
-        tg.build();
+        Set<IPLFormula> premises = new HashSet<>();
+        for (int i = 0; i < parts.length - 1; i++) {
+            premises.add(LogicAPI.parsePL(parts[i].trim()));
+        }
 
-        for (IFormula f : tg.getFormulas())
-            System.out.println(Utils.getToken(f.toString()));
+        Assertions.assertDoesNotThrow(() -> {
+            INDProof proof = new AlgoProofPLBuilder(
+                    new AlgoProofPLMainGoalBuilder(LogicAPI.parsePL(expression))
+                            .addPremises(premises))
+                    .addForbiddenRule(ERule.ABSURDITY)
+                    .addForbiddenRule(ERule.INTRO_NEGATION)
+                    .addForbiddenRule(ERule.ELIM_NEGATION)
+                    .build();
+            System.out.println("Size: " + proof.size() + " Height: " + proof.height());
+            System.out.println(proof);
+        });
     }
 }

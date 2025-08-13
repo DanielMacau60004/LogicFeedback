@@ -7,7 +7,6 @@ import com.logic.feedback.FeedbackLevel;
 import com.logic.feedback.nd.feedback.*;
 import com.logic.feedback.nd.hints.ConclusionHint;
 import com.logic.feedback.nd.hints.FreeVariableHint;
-import com.logic.feedback.nd.hints.MarkAssignHint;
 import com.logic.nd.NDProofs;
 import com.logic.nd.asts.IASTND;
 import com.logic.nd.exceptions.*;
@@ -102,7 +101,6 @@ public class NDFeedbacks {
             CloseMarkFeedback.produceFeedback(cm, mapper.get(cm.getRule()), level);
         } else if (e instanceof MarkAssignException ma) {
             MarkAssignFeedback.produceFeedback(ma, mapper.get(ma.getRule()), level);
-            if(hasProblem) MarkAssignHint.produceHint(ma, mapper.get(ma.getRule()), level);
         } else if (e instanceof FreeVariableException fv) {
             FreeVariableFeedback.produceFeedback(fv, mapper, level);
             if(hasProblem) FreeVariableHint.produceHint(fv, mapper, level);

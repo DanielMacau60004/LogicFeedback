@@ -22,6 +22,6 @@ public class ProofTransitionEdge {
 
     @Override
     public String toString() {
-        return node.toString();
+        return node.getExp().toString();
     }
 }

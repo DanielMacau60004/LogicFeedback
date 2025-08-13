@@ -10,6 +10,7 @@ import com.logic.feedback.nd.algorithm.proofs.Solution;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionGraphFOL;
 import com.logic.nd.ERule;
+import com.logic.others.Utils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -64,10 +65,14 @@ public class AlgoProofFOLBuilder {
         ITransitionGraph tg = new TransitionGraphFOL(expressions, forbiddenRules, terms);
         tg.build();
 
-        IProofGraph sg = new ProofGraphFOL(problem, goal, tg, s);
-        sg.build();
+        System.out.println(Utils.getToken(tg.toString()));
 
-        return sg;
+        IProofGraph pg = new ProofGraphFOL(problem, goal, tg, s);
+        pg.build();
+
+        System.out.println(Utils.getToken(pg.toString()));
+
+        return pg;
     }
 
     public INDProof build() {
