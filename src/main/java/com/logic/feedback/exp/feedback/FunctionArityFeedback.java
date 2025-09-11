@@ -12,9 +12,9 @@ public class FunctionArityFeedback  {
             case NONE -> "";
             case LOW -> "Invalid expression!";
             case MEDIUM -> "Invalid function arity!";
-            case HIGH -> "Invalid function arity in function \"" + exception.getFunctionName() + "\"!";
-            case SOLUTION -> "Invalid function arity in function \"" + exception.getFunctionName() +
-                    "\" found " + exception.getFoundArity() + " but expected " + exception.getExpectedArity() + "!"
+            case HIGH -> "Invalid arity for \"" + exception.getFunctionName() + "\"!";
+            case SOLUTION -> "Invalid arity for \"" + exception.getFunctionName() + "\"" +
+                    " found " + exception.getFoundArity() + " but expected " + exception.getExpectedArity() + "!"
             ;
         });
     }

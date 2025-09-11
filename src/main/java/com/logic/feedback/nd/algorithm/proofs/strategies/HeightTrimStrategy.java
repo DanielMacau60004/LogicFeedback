@@ -15,6 +15,8 @@ public class HeightTrimStrategy implements ITrimStrategy {
         Map<GoalNode, Set<ProofEdge>> graph = buildStrategy.getGraph();
         Map<GoalNode, Set<GoalNode>> inverted = buildStrategy.getInvertedGraph();
 
+        int leaves = explore.size();
+
         Map<GoalNode, ProofEdge> tree = new HashMap<>();
         Set<GoalNode> explored = new HashSet<>();
 
@@ -43,6 +45,10 @@ public class HeightTrimStrategy implements ITrimStrategy {
             }
         }
 
+        /*System.out.println("Nodes:" + tree.size()+" " +
+                (tree.keySet().stream().filter(e-> !graph.get(e).isEmpty()).count()) +" "+
+                (tree.keySet().stream().filter(e-> graph.get(e).isEmpty() && !inverted.get(e).isEmpty()).count())+ " Edges: "
+                +(tree.values().stream().filter(Objects::nonNull).mapToLong(t -> t.getTransitions().size()).sum()) );*/
         return tree;
     }
 }

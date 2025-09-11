@@ -11,9 +11,9 @@ public class PredicateArityFeedback {
             case NONE -> "";
             case LOW -> "Invalid expression!";
             case MEDIUM -> "Invalid predicate arity!";
-            case HIGH -> "Invalid function predicate in function \"" + exception.getPredicateName() + "\"!";
-            case SOLUTION -> "Invalid function predicate in function \"" + exception.getPredicateName() +
-                    "\" found " + exception.getFoundArity() + " but expected " + exception.getExpectedArity() + "!"
+            case HIGH -> "Invalid arity for \"" + exception.getPredicateName() + "\"!";
+            case SOLUTION -> "Invalid arity for \"" + exception.getPredicateName() + "\"" +
+                    " found " + exception.getFoundArity() + " but expected " + exception.getExpectedArity() + "!"
             ;
         });
     }

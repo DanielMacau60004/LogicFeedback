@@ -3,10 +3,7 @@ package com.logic.feedback.nd.algorithm.proofs.strategies;
 import com.logic.feedback.nd.algorithm.proofs.ProofEdge;
 import com.logic.feedback.nd.algorithm.proofs.GoalNode;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 public class SizeTrimStrategy implements ITrimStrategy {
 
