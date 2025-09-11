@@ -34,6 +34,8 @@ public class ExpSyntaxFeedback {
         Token currentToken = exception.getException().currentToken;
         int[][] array = exception.getException().expectedTokenSequences;
         StringBuilder expected = new StringBuilder();
+        String currentType = tokensMapping.get(exception.getException().currentToken.next.kind);
+        String currentValue = exception.getException().currentToken.next.image;
 
         int maxSize = 0;
         for (int[] cArray : array) {
@@ -53,7 +55,9 @@ public class ExpSyntaxFeedback {
                 .append(currentToken.next.beginColumn).append(".");
 
         if (showExpected)
-            retVal.append(" Expecting: ").append(expected);
+            retVal.append("\nExpected type: ").append(expected)
+                    .append(", but found ").append(currentValue)
+                    .append(", which is a ").append(currentType).append(".");
 
         return retVal.toString();
     }

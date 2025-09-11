@@ -12,8 +12,8 @@ public class PredicateArityFeedback {
             case LOW -> "Invalid expression!";
             case MEDIUM -> "Invalid predicate arity!";
             case HIGH -> "Invalid arity for \"" + exception.getPredicateName() + "\"!";
-            case SOLUTION -> "Invalid arity for \"" + exception.getPredicateName() + "\"" +
-                    " found " + exception.getFoundArity() + " but expected " + exception.getExpectedArity() + "!"
+            case SOLUTION -> "Predicate \"" + exception.getPredicateName() + "\" was found with conflicting arities: \n"
+                    + exception.getFoundArity() + " and " + exception.getExpectedArity() + "."
             ;
         });
     }
