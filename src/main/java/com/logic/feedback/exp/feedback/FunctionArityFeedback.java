@@ -13,7 +13,7 @@ public class FunctionArityFeedback  {
             case LOW -> "Invalid expression!";
             case MEDIUM -> "Invalid function arity!";
             case HIGH -> "Invalid arity for \"" + exception.getFunctionName() + "\"!";
-            case SOLUTION -> "Function \"" + exception.getFunctionName() + "\" appears with conflicting arities: \n"
+            case SOLUTION -> "Function \"" + exception.getFunctionName() + "\" appears with conflicting arities: "
                     + exception.getFoundArity() + " and " + exception.getExpectedArity() + "."
             ;
         });
