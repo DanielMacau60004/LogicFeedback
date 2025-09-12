@@ -31,7 +31,7 @@ public class FreeVariableFeedback {
                 for (IASTND h : exception.getFreeHypotheses()) {
                     IFeedback f = mapper.get(h).getConclusion();
 
-                    StringBuilder msg = new StringBuilder(OPEN_HYPOTHESIS);
+                    StringBuilder msg = new StringBuilder();
                     if (from != null && variable != null) {
                         msg.append(String.format(VARIABLES_NOT_EQUAL, from, variable));
                     }
