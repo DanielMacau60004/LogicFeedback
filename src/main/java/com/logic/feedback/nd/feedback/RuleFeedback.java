@@ -267,6 +267,7 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
                 ));
             }
         }
+
         return null;
     }
 

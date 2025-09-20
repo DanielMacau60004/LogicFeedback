@@ -64,7 +64,7 @@ public class NDFeedbacks {
             IASTND proof = astParser.parse(parser);
             return parseNDFeedback(proof, level, isFOL, premises, conclusion);
         } catch (Exception e) {
-            throw new RuntimeException("Something went wrong! " + e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -91,7 +91,7 @@ public class NDFeedbacks {
 
             return new NDProofFeedback(ndProof, feedback, level, error);
         } catch (Exception e) {
-            throw new RuntimeException("Something went wrong! " + e.getMessage(), e);
+            throw new RuntimeException("Something went wrong!" + e.getMessage(), e);
         }
     }
 

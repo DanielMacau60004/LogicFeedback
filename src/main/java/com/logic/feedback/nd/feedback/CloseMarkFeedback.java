@@ -28,16 +28,16 @@ public class CloseMarkFeedback {
                 String error = String.format(RULE_CANNOT_CLOSE_MARK, exception.getMark());
                 if (exception.getExpected() != null) {
                     error += String.format(ONLY_MARKS_ASSIGNED_TO, exception.getExpected());
-                }
 
-                Set<String> possibleMarks = exception.getEnv()
-                        .getMatchingChild(exception.getExpected()).stream()
-                        .filter(Utils::isInteger)
-                        .collect(Collectors.toSet());
+                    Set<String> possibleMarks = exception.getEnv()
+                            .getMatchingChild(exception.getExpected()).stream()
+                            .filter(Utils::isInteger)
+                            .collect(Collectors.toSet());
 
-                if (!possibleMarks.isEmpty()) {
-                    error += CONSIDER;
-                    feedback.addPreview(new ASTHypothesis(exception.getExpected(), possibleMarks.stream().findFirst().get()));
+                    if (!possibleMarks.isEmpty()) {
+                        error += CONSIDER;
+                        feedback.addPreview(new ASTHypothesis(exception.getExpected(), possibleMarks.stream().findFirst().get()));
+                    }
                 }
 
                 yield error;
