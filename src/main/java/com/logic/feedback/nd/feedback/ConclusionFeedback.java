@@ -20,15 +20,12 @@ public class ConclusionFeedback {
 
     public static void produceFeedback(ConclusionException exception, Map<IASTND, NDFeedback> mapper, FeedbackLevel level) {
         NDFeedback feedback = mapper.get(exception.getRule());
+
         feedback.getConclusion().setFeedback(switch (level) {
             case NONE -> "";
             case LOW, MEDIUM -> "This tree doesn't solve the problem!";
             case HIGH, SOLUTION -> {
                 Set<IFormula> premises = exception.getProvedPremises();
-
-                for (ASTHypothesis hypothesis : exception.getUnclosed())
-                    produceFeedback(mapper.get(hypothesis), level, hypothesis, hypothesis.getEnv());
-
                 yield "This tree doesn't solve the problem!\n" +
                         "You proved:\n" +
                         (premises != null && !premises.isEmpty()
@@ -37,14 +34,21 @@ public class ConclusionFeedback {
                         "⊢ " + exception.getProvedConclusion().toString();
             }
         });
+
+        if (level != FeedbackLevel.NONE && level != FeedbackLevel.LOW)
+            for (ASTHypothesis hypothesis : exception.getUnclosed())
+                produceFeedback(mapper.get(hypothesis), level, hypothesis, hypothesis.getEnv());
     }
 
     private static void produceFeedback(NDFeedback feedback, FeedbackLevel level,
                                         ASTHypothesis hypothesis, Env<String, IASTExp> env) {
-        String error = "Incomplete proof.\n" + (hypothesis.getM() == null ? "Did you forget to assign a mark?" : "That mark cannot be closed by any rule!");
+        String error = "Open hypothesis!";
+
+        if(feedback.getConclusion().hasFeedback())
+            return;
+
         feedback.getConclusion().setFeedback(switch (level) {
-            case NONE -> "";
-            case LOW -> "Incomplete proof!";
+            case NONE, LOW -> null;
             case MEDIUM -> error;
             case HIGH -> {
                 error = getAvailable(feedback, env, error);

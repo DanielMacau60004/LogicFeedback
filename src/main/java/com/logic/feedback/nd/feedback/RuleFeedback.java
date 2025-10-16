@@ -266,6 +266,9 @@ public class RuleFeedback implements INDVisitor<Void, Void> {
                         ExpUtils.BOT
                 ));
             }
+        } else {
+            if(level.ordinal() >= FeedbackLevel.HIGH.ordinal())
+                feedback.setFeedback(String.format(NOT_A_NEGATION, h2, h1));
         }
 
         return null;

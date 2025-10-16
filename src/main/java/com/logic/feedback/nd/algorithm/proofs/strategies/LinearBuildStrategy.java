@@ -1,12 +1,12 @@
 package com.logic.feedback.nd.algorithm.proofs.strategies;
 
+import com.logic.feedback.nd.algorithm.proofs.BitArray;
+import com.logic.feedback.nd.algorithm.proofs.GoalNode;
 import com.logic.feedback.nd.algorithm.proofs.ProofEdge;
 import com.logic.feedback.nd.algorithm.proofs.ProofGraphSettings;
-import com.logic.feedback.nd.algorithm.proofs.GoalNode;
 import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
 import com.logic.feedback.nd.algorithm.transition.TransitionEdge;
 import com.logic.feedback.nd.algorithm.transition.TransitionNode;
-import com.logic.others.Utils;
 
 import java.util.*;
 
@@ -36,11 +36,23 @@ public class LinearBuildStrategy implements IBuildStrategy {
         explore.add(initialNode);
         nodes.put(initialNode, initialNode);
         inverted.put(initialNode, new HashSet<>());
+        explore.add(null);
 
+        int level = 0, totalExplored = 0;
         long start = System.currentTimeMillis() + settings.getTimeout();
+
+        Set<BitArray> sets = new HashSet<>();
 
         while (!explore.isEmpty()) {
             GoalNode state = explore.poll();
+
+            if (state == null) {
+                level++;
+                if (!explore.isEmpty()) explore.add(null);
+                //System.out.println("Level: " + level+", totalExplored: " + totalExplored);
+                totalExplored = 0;
+                continue;
+            }
 
             if ((start - System.currentTimeMillis()) < 0 || closed.size() == settings.getTotalClosedNodesLimit())
                 break;
@@ -48,6 +60,7 @@ public class LinearBuildStrategy implements IBuildStrategy {
             Set<ProofEdge> edges = new HashSet<>();
             graph.put(state, edges);
             explored++;
+
 
             if (state.isClosed()) {
                 closed.add(state);
@@ -71,7 +84,7 @@ public class LinearBuildStrategy implements IBuildStrategy {
                     GoalNode newState = state.transit(transition.getTo(), transition.getProduces(),
                             transition.getFree());
 
-                    if(newState == null){
+                    if (newState == null) {
                         shouldAddEdge = false;
                         break;
                     }
@@ -91,16 +104,22 @@ public class LinearBuildStrategy implements IBuildStrategy {
 
                         //graph.put(newState, null);
                         explore.add(newState);
+                        totalExplored++;
                     }
 
+                    sets.add(newState.getBitArray());
                     e.addTransition(newState);
+
 
                 }
 
-                if(shouldAddEdge) edges.add(e);
+                if (shouldAddEdge) edges.add(e);
 
             }
         }
+
+        //System.out.println("BITARRAY: " + sets.size());
+        //System.out.println("EXPLORED: " + nodes.size());
 
         settings.setTotalNodesLimit(explored);
         settings.setTotalClosedNodesLimit(closed.size());

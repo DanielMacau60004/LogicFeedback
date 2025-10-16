@@ -4,7 +4,6 @@ import com.logic.api.IFOLFormula;
 import com.logic.api.IFormula;
 import com.logic.exps.asts.others.ASTVariable;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,8 +27,7 @@ public class GoalNode {
         this.height = height;
         this.handler = handler;
 
-        if (assumption != null)
-            assumptions.set(assumption);
+        if (assumption != null) assumptions.set(assumption);
 
         resetClose();
 
@@ -64,6 +62,10 @@ public class GoalNode {
         isClosed = (assumptions.contains(exp) || handler.getPremises().contains(exp));
     }
 
+    public BitArray getBitArray() {
+        return assumptions;
+    }
+
     public Integer numberOfHypotheses() {
         return assumptions.length();
     }
@@ -72,18 +74,12 @@ public class GoalNode {
         return handler.fromBitSet(assumptions);
     }
 
-
-
     public GoalNode transit(IFormula exp, IFormula assumption, ASTVariable notFree) {
         if (notFree != null) {
-
             for (short i : assumptions.getData())
-                if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
-                    return null;
+                if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree)) return null;
             for (short i : handler.getPremises().getData())
-                if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree))
-                    return null;
-
+                if (((IFOLFormula) handler.get(i)).appearsFreeVariable(notFree)) return null;
         }
 
         BitArray assumptions = this.assumptions;
@@ -93,16 +89,8 @@ public class GoalNode {
         }
 
         if (assumption != null)
-            return new
-
-                    GoalNode(handler.getIndex(exp), assumptions, handler.
-
-                    getIndex(assumption),
-
-                    height + 1, handler);
-        return new
-
-                GoalNode(handler.getIndex(exp), assumptions, height + 1, handler);
+            return new GoalNode(handler.getIndex(exp), assumptions, handler.getIndex(assumption), height + 1, handler);
+        return new GoalNode(handler.getIndex(exp), assumptions, height + 1, handler);
     }
 
     @Override

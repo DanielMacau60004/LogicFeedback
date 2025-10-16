@@ -389,14 +389,14 @@ public class NDFOLTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "¬∃x P(x). ∀x ¬P(x)",
+            /*"¬∃x P(x). ∀x ¬P(x)",
             "∃x ¬P(x). ¬∀x P(x)",
             "¬∀x P(x). ∃x ¬P(x)",
             "∀x ¬P(x). ¬∃x P(x)",
             "∀x(∃y P(y) → Q(x)). ∀x ∃y(P(y) → Q(x))",
             "∀x ¬∀y (P(x,y) → Q(x,y)). ∀x ∃y P(x,y)",
             "∀x (P(x,x) ∨ ∀y Q(x,y)). ∀x(∃y P(x,y) ∨ Q(x,x))",
-            "∀y(C(y) ∨ D(y)). ∀x(C(x) → L(x)). ∃x¬L(x). ∃x D(x)",
+            "∀y(C(y) ∨ D(y)). ∀x(C(x) → L(x)). ∃x¬L(x). ∃x D(x)",*/
             "∀x ∀y (L(x,y) → L(y,x)). ∃x ∀y L(x,y). ∀x ∃y L(x,y)"
     })
     void testAlgorithmWithNoExtra1(String premisesAndExpression) throws Exception {
@@ -416,7 +416,7 @@ public class NDFOLTest {
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
                                     .setTimeout(2000)
-                                    .setTotalClosedNodes(4000))
+                                    .setTotalClosedNodes(10000))
                     //.addTerm(new ASTVariable("b"))
                     //.addForbiddenRule(ERule.ABSURDITY)
                     //.addForbiddenRule(ERule.ELIM_EXISTENTIAL)

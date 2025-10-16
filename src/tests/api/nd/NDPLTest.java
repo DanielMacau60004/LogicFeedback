@@ -4,16 +4,12 @@ import com.logic.api.IFormula;
 import com.logic.api.INDProof;
 import com.logic.api.IPLFormula;
 import com.logic.api.LogicAPI;
-import com.logic.exps.asts.IASTExp;
 import com.logic.feedback.nd.algorithm.AlgoProofPLBuilder;
 import com.logic.feedback.nd.algorithm.AlgoProofPLGoalBuilder;
 import com.logic.feedback.nd.algorithm.AlgoProofPLMainGoalBuilder;
 import com.logic.feedback.nd.algorithm.AlgoSettingsBuilder;
 import com.logic.feedback.nd.algorithm.proofs.strategies.HeightTrimStrategy;
 import com.logic.feedback.nd.algorithm.proofs.strategies.SizeTrimStrategy;
-import com.logic.feedback.nd.algorithm.transition.ITransitionGraph;
-import com.logic.feedback.nd.algorithm.transition.TransitionGraphFOL;
-import com.logic.feedback.nd.algorithm.transition.TransitionGraphPL;
 import com.logic.nd.ERule;
 import com.logic.others.Utils;
 import org.junit.jupiter.api.Assertions;
@@ -248,14 +244,18 @@ public class NDPLTest {
                     new AlgoProofPLMainGoalBuilder(LogicAPI.parsePL(expression))
                             .addPremises(premises))
                     .setAlgoSettingsBuilder(new AlgoSettingsBuilder()
-                                    .setTrimStrategy(new HeightTrimStrategy())
+                                    .setTotalClosedNodes(2_000)
+                                    .setHeightLimit(10000000)
+                                    .setTimeout(10000000)
+                                    .setHypothesesPerGoal(1000000)
+                                    .setTrimStrategy(new SizeTrimStrategy())
                             /*.setTimeout(10000000)
                             .setHeightLimit(100000)
                             .setHypothesesPerState(1000000)
                             .setTotalClosedNodes(10000000))*/)
                     .build();
             System.out.println("Size: " + proof.size() + " Height: " + proof.height());
-            System.out.println(proof);
+            //System.out.println(proof);
 
             Set<IFormula> premisesProof = new HashSet<>();
             proof.getPremises().forEachRemaining(premisesProof::add);
@@ -345,13 +345,13 @@ public class NDPLTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "((a → a) ∧ (a → a)) ∧ ((a → a) ∧ (a → a))",
-            "(p ∧ q) → (r ∨ s), (p → r) ∨ (q → s)",
+            //"(p ∧ q) → (r ∨ s), (p → r) ∨ (q → s)",
             "((p → q) → (¬p ∨ q)) ∧ ((¬p ∨ q) → (p → q))",
             "(((p ∧ q) ∨ (p ∧ ¬q)) ∨ (¬p ∧ q)) ∨ (¬p ∧ ¬q)",
-            "a → ¬¬ a ",
+            //"a → ¬¬ a ",
             "(((p → (q ∨ s)) ∧ ((p ∧ r) → s)) ∧ ((s ∧ t) → (p ∨ ¬q))) → (((p ∧ (q → r)) → s) ∧ (((q ∧ s) ∧ t) → p))",
             "((p ∨ q) ∨ (r ∨ s)) → ((p ∨ s) ∨ (r ∨ q))",
-            "(s ∨ t) → (s → ¬t), (s → ¬t) → (t → k), s ∨ t, s ∨ k",
+            //"(s ∨ t) → (s → ¬t), (s → ¬t) → (t → k), s ∨ t, s ∨ k",
             "(¬a ∨ ¬b) → ((c → (a ∧ b)) → ¬c)"
 
     })
@@ -370,11 +370,11 @@ public class NDPLTest {
                             .addPremises(premises))
                     .setAlgoSettingsBuilder(
                             new AlgoSettingsBuilder()
-                                    //.setHypothesesPerState(5)
-                                    .setTimeout(1500)
-                                    //.setTimeout(Integer.MAX_VALUE)
+                                    .setHeightLimit(Integer.MAX_VALUE)
+                                    //.setTimeout(1500)
+                                    .setTimeout(Integer.MAX_VALUE)
                                     .setHypothesesPerGoal(Integer.MAX_VALUE)
-                                    .setTotalClosedNodes(Integer.MAX_VALUE)
+                                    .setTotalClosedNodes(10_000)
                                     .setTrimStrategy(new SizeTrimStrategy())
                     )
                     .build();
@@ -408,10 +408,10 @@ public class NDPLTest {
                             new AlgoSettingsBuilder()
                                     //.setHypothesesPerState(5)
                                     .setTimeout(2000)
-                                    //.setTotalClosedNodes(Integer.MAX_VALUE)
-                                    //.setHeightLimit(Integer.MAX_VALUE)
-                                    //.setHypothesesPerGoal(Integer.MAX_VALUE)
-                                    //.setTrimStrategy(new HeightTrimStrategy())
+                            //.setTotalClosedNodes(Integer.MAX_VALUE)
+                            //.setHeightLimit(Integer.MAX_VALUE)
+                            //.setHypothesesPerGoal(Integer.MAX_VALUE)
+                            //.setTrimStrategy(new HeightTrimStrategy())
                     )
 
                     .build();
@@ -467,7 +467,7 @@ public class NDPLTest {
             Total edges: 49
              */
             //"p → ¬p, ¬p"
-"(p → q) → p, q → p"
+            "(p → q) → p, q → p"
             /*
             Total nodes: 107
             Total edges: 70

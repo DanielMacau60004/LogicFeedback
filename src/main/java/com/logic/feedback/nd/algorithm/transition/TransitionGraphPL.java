@@ -224,7 +224,7 @@ public class TransitionGraphPL implements ITransitionGraph {
         str.append("Total nodes: ").append(graph.size()).append("\n");
         str.append("Total edges: ").append(graph.values().stream().mapToInt(Set::size).sum()).append("\n");
         for (Map.Entry<IASTExp, Set<TransitionEdge>> entry : graph.entrySet()) {
-            str.append(entry.getKey()).append(":  \n");
+            str.append(entry.getKey()).append(": ").append(entry.getValue().size()).append("\n");
             for (TransitionEdge transition : entry.getValue())
                 str.append("\t").append(transition).append("\n");
         }

@@ -1,5 +1,6 @@
 package com.logic.feedback.nd.feedback;
 
+import com.logic.exps.asts.IASTExp;
 import com.logic.feedback.others.Utils;
 import com.logic.nd.asts.others.ASTHypothesis;
 import com.logic.nd.exceptions.CloseMarkException;
@@ -19,14 +20,17 @@ public class CloseMarkFeedback {
             case MEDIUM -> String.format(RULE_CANNOT_CLOSE_MARK, exception.getMark());
             case HIGH -> {
                 String error = String.format(RULE_CANNOT_CLOSE_MARK, exception.getMark());
-                if (exception.getExpected() != null) {
+                if (exception.getAssigned() != null && exception.getExpected() != null) {
                     error += String.format(ONLY_MARKS_ASSIGNED_TO, exception.getExpected());
+                } else {
+                    error += String.format(ONLY_MARKS_ASSIGNED_TO, exception.getExpected());
+                    error += SHOULD_BE_VARIABLE;
                 }
                 yield error;
             }
             case SOLUTION -> {
                 String error = String.format(RULE_CANNOT_CLOSE_MARK, exception.getMark());
-                if (exception.getExpected() != null) {
+                if (exception.getAssigned() != null && exception.getExpected() != null) {
                     error += String.format(ONLY_MARKS_ASSIGNED_TO, exception.getExpected());
 
                     Set<String> possibleMarks = exception.getEnv()
@@ -38,6 +42,9 @@ public class CloseMarkFeedback {
                         error += CONSIDER;
                         feedback.addPreview(new ASTHypothesis(exception.getExpected(), possibleMarks.stream().findFirst().get()));
                     }
+                } else {
+                    error += String.format(ONLY_MARKS_ASSIGNED_TO, exception.getExpected());
+                    error += SHOULD_BE_VARIABLE;
                 }
 
                 yield error;

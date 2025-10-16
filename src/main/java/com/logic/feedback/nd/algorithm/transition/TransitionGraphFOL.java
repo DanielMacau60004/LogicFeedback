@@ -15,7 +15,7 @@ import com.logic.others.Utils;
 
 import java.util.*;
 
-public class TransitionGraphFOL extends TransitionGraphPL implements ITransitionGraph {
+public class TransitionGraphFOL extends TransitionGraphPL {
 
     private final Set<ASTExistential> existentials;
     private final Set<AASTTerm> terms;

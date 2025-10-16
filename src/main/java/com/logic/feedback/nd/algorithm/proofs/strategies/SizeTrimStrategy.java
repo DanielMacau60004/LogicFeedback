@@ -33,6 +33,7 @@ public class SizeTrimStrategy implements ITrimStrategy {
                 for (GoalNode to : inverted.get(state)) {
                     Set<ProofEdge> edges = graph.get(to);
                     if (edges != null) {
+
                         edges.removeIf(e -> {
                             if (!e.isClosed()) return false;
 
@@ -46,6 +47,7 @@ public class SizeTrimStrategy implements ITrimStrategy {
 
                             return true;
                         });
+
                     }
 
                 }
